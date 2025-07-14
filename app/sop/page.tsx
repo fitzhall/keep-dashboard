@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
-import { Card } from '@/components/ui/Card'
+import { Card } from '@/components/ui/card'
 import * as Tabs from '@radix-ui/react-tabs'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
