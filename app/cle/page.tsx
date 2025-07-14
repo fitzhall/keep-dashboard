@@ -70,65 +70,52 @@ export default function CLEPage() {
         </p>
       </motion.div>
 
-      {/* Progress Overview - Modern Cards */}
-      <div className="grid gap-6 md:grid-cols-3 mb-12">
+      {/* Progress Overview */}
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-blue-50 rounded-xl">
-                  <Award className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-full">CLE</span>
-              </div>
-              <div className="space-y-1">
-                <div className="text-3xl font-bold text-gray-900">{earnedCredits}</div>
-                <p className="text-sm text-gray-600">of {totalCredits} credits earned</p>
-              </div>
-            </div>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Credits Earned</CardTitle>
+              <Award className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{earnedCredits}</div>
+              <p className="text-xs text-muted-foreground">of {totalCredits} total credits</p>
+            </CardContent>
+          </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-green-50 rounded-xl">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                </div>
-                <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-full">COURSES</span>
-              </div>
-              <div className="space-y-1">
-                <div className="text-3xl font-bold text-gray-900">{courses.filter(c => c.status === 'completed').length}</div>
-                <p className="text-sm text-gray-600">of {courses.length} completed</p>
-              </div>
-            </div>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Courses Completed</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{courses.filter(c => c.status === 'completed').length}</div>
+              <p className="text-xs text-muted-foreground">of {courses.length} courses</p>
+            </CardContent>
+          </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-amber-50 rounded-xl">
-                  <Clock className="h-5 w-5 text-amber-600" />
-                </div>
-                <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-full">STATUS</span>
-              </div>
-              <div className="space-y-1">
-                <div className="text-3xl font-bold text-gray-900">{Math.round((earnedCredits / totalCredits) * 100)}%</div>
-                <p className="text-sm text-gray-600">certification progress</p>
-              </div>
-            </div>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Certification Status</CardTitle>
+              <Badge className="h-4 w-4 p-0 rounded-full" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">In Progress</div>
+              <p className="text-xs text-muted-foreground">
+                {Math.round((earnedCredits / totalCredits) * 100)}% complete
+              </p>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
 
-      {/* Course List - Modern Design */}
-      <div className="space-y-6">
+      {/* Course List */}
+      <div className="space-y-8">
         {courses.map((course, index) => (
           <motion.div
             key={course.id}
@@ -136,187 +123,170 @@ export default function CLEPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 + index * 0.1 }}
           >
-            <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-50 rounded-3xl blur-sm opacity-50 group-hover:opacity-70 transition-opacity"></div>
-              <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-3">
-                      <h3 className="text-2xl font-bold text-gray-900">{course.title}</h3>
-                      <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        course.status === 'completed' ? 'bg-green-100 text-green-700' :
-                        course.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="text-xl">{course.title}</CardTitle>
+                      <Badge 
+                        variant={
+                          course.status === 'completed' ? 'default' :
+                          course.status === 'in-progress' ? 'secondary' :
+                          'outline'
+                        }
+                        className="px-3 py-1"
+                      >
                         {course.status === 'completed' ? 'Completed' :
                          course.status === 'in-progress' ? 'In Progress' :
-                         'Available'}
-                      </div>
+                         'Not Started'}
+                      </Badge>
                     </div>
-                    <p className="text-gray-600 leading-relaxed mb-4 text-lg">{course.description}</p>
-                    <div className="flex items-center gap-8">
-                      <div className="flex items-center gap-2 text-gray-500">
+                    <p className="text-muted-foreground leading-relaxed">{course.description}</p>
+                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
-                        <span className="text-sm font-medium">{course.duration}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-500">
+                        {course.duration}
+                      </span>
+                      <span className="flex items-center gap-2">
                         <Award className="h-4 w-4" />
-                        <span className="text-sm font-medium">{course.credits} CLE Credits</span>
-                      </div>
+                        {course.credits} CLE Credits
+                      </span>
                     </div>
                   </div>
                 </div>
-
+              </CardHeader>
+              <CardContent className="pt-0">
                 {course.status === 'in-progress' && (
-                  <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-semibold text-blue-900">Course Progress</span>
-                      <span className="text-2xl font-bold text-blue-700">{course.progress}%</span>
+                  <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between text-sm mb-3">
+                      <span className="font-medium text-blue-700">Course Progress</span>
+                      <span className="font-bold text-blue-700">{course.progress}%</span>
                     </div>
-                    <div className="w-full bg-blue-200 rounded-full h-3">
-                      <div 
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${course.progress}%` }}
-                      ></div>
-                    </div>
+                    <Progress value={course.progress} className="w-full h-2" />
                   </div>
                 )}
                 
                 {course.status === 'completed' && course.completedDate && (
-                  <div className="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100">
+                  <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-full">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-green-900">Course Completed</div>
-                          <div className="text-sm text-green-700">
-                            {new Date(course.completedDate).toLocaleDateString()}
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-green-700 font-medium">
+                          Completed on {new Date(course.completedDate).toLocaleDateString()}
+                        </span>
                       </div>
-                      <button className="px-4 py-2 bg-white border border-green-200 rounded-xl text-green-700 font-medium hover:bg-green-50 transition-colors flex items-center gap-2">
-                        <Download className="h-4 w-4" />
-                        Certificate
-                      </button>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Download Certificate
+                      </Button>
                     </div>
                   </div>
                 )}
 
-                <div className="flex items-center gap-4">
+                <div className="flex gap-3">
                   {course.status === 'not-started' && (
-                    <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl">
-                      <PlayCircle className="h-5 w-5" />
+                    <Button size="lg" className="px-6">
+                      <PlayCircle className="h-5 w-5 mr-2" />
                       Start Course
-                    </button>
+                    </Button>
                   )}
                   {course.status === 'in-progress' && (
-                    <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl">
-                      <PlayCircle className="h-5 w-5" />
+                    <Button size="lg" className="px-6">
+                      <PlayCircle className="h-5 w-5 mr-2" />
                       Continue Course
-                    </button>
+                    </Button>
                   )}
                   {course.status === 'completed' && (
-                    <button className="px-8 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 flex items-center gap-2">
-                      <PlayCircle className="h-5 w-5" />
+                    <Button variant="outline" size="lg" className="px-6">
+                      <PlayCircle className="h-5 w-5 mr-2" />
                       Review Course
-                    </button>
+                    </Button>
                   )}
-                  <button className="px-6 py-3 text-gray-600 font-medium hover:text-gray-900 transition-colors">
+                  <Button variant="ghost" size="lg">
                     View Syllabus
-                  </button>
+                  </Button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
       </div>
 
-      {/* Modern Certification Card */}
+      {/* Certification Card */}
       <motion.div 
-        className="mt-16"
+        className="mt-12"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
       >
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-3xl blur-2xl opacity-20"></div>
-          <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-xl">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl">
-                <Award className="h-8 w-8 text-white" />
+        <Card className="border-primary bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Award className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">KEEP Bitcoin Estate Planning Certification</h2>
-                <p className="text-gray-600 mt-1">
+                <CardTitle className="text-xl">KEEP Bitcoin Estate Planning Certification</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
                   Demonstrate your expertise and commitment to professional Bitcoin estate planning
                 </p>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-                <div className="text-3xl font-bold text-blue-600 mb-1">{earnedCredits}</div>
-                <div className="text-sm font-medium text-blue-700">Credits Earned</div>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border border-purple-100">
-                <div className="text-3xl font-bold text-purple-600 mb-1">{totalCredits}</div>
-                <div className="text-sm font-medium text-purple-700">Total Required</div>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100">
-                <div className="text-3xl font-bold text-green-600 mb-1">
-                  {Math.round((earnedCredits / totalCredits) * 100)}%
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-white rounded-lg border">
+                  <div className="text-2xl font-bold text-primary">{earnedCredits}</div>
+                  <div className="text-sm text-muted-foreground">Credits Earned</div>
                 </div>
-                <div className="text-sm font-medium text-green-700">Complete</div>
+                <div className="text-center p-4 bg-white rounded-lg border">
+                  <div className="text-2xl font-bold">{totalCredits}</div>
+                  <div className="text-sm text-muted-foreground">Total Required</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg border">
+                  <div className="text-2xl font-bold text-green-600">
+                    {Math.round((earnedCredits / totalCredits) * 100)}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Complete</div>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-gray-900">Certification Progress</span>
-                <span className="text-gray-600 font-medium">{earnedCredits} / {totalCredits} credits</span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">Certification Progress</span>
+                  <span className="text-muted-foreground">{earnedCredits} / {totalCredits} credits</span>
+                </div>
+                <Progress value={(earnedCredits / totalCredits) * 100} className="h-3" />
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-4">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-500"
-                  style={{ width: `${(earnedCredits / totalCredits) * 100}%` }}
-                ></div>
-              </div>
-            </div>
 
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <p className="font-semibold text-gray-900">
+              <div className="flex items-center justify-between pt-2">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">
+                    {earnedCredits >= totalCredits ? 
+                      '🎉 Congratulations! You\'re ready for certification.' :
+                      `${totalCredits - earnedCredits} more credits needed to complete certification`
+                    }
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Your certificate will be issued within 24 hours of completion
+                  </p>
+                </div>
+                <Button 
+                  size="lg"
+                  disabled={earnedCredits < totalCredits}
+                  className="px-8"
+                >
                   {earnedCredits >= totalCredits ? 
-                    '🎉 Congratulations! You\'re ready for certification.' :
-                    `${totalCredits - earnedCredits} more credits needed to complete certification`
+                    <><Download className="h-4 w-4 mr-2" />Download Certificate</> : 
+                    'Complete Remaining Courses'
                   }
-                </p>
-                <p className="text-sm text-gray-600">
-                  Your certificate will be issued within 24 hours of completion
-                </p>
+                </Button>
               </div>
-              <button 
-                disabled={earnedCredits < totalCredits}
-                className={`px-8 py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center gap-3 ${
-                  earnedCredits >= totalCredits 
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:from-green-700 hover:to-emerald-700' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {earnedCredits >= totalCredits ? (
-                  <>
-                    <Download className="h-5 w-5" />
-                    Download Certificate
-                  </>
-                ) : (
-                  'Complete Remaining Courses'
-                )}
-              </button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </motion.div>
     </>
   )
