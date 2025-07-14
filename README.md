@@ -23,9 +23,9 @@ npm run dev
 ### Tech Stack
 - Next.js 14 (App Router)
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS with shadcn/ui
 - PostgreSQL (coming soon)
-- Auth0 (coming soon)
+- Auth0 Authentication
 
 ### Project Structure
 ```
