@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { motion } from 'framer-motion'
-import { useUserProgress } from '@/contexts/UserProgressContext'
+import { useUserProgress, UserProgress } from '@/contexts/UserProgressContext'
 import Link from 'next/link'
 import { 
   Award, 
@@ -80,11 +80,11 @@ export default function DashboardPage() {
     return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? 's' : ''} ago`
   }
 
-  function generateNextSteps(progress: typeof progress) {
+  function generateNextSteps(userProgress: UserProgress) {
     const steps = []
     
     // Check for in-progress courses
-    const inProgressCourse = progress.courses.find(c => c.status === 'in-progress')
+    const inProgressCourse = userProgress.courses.find(c => c.status === 'in-progress')
     if (inProgressCourse) {
       const courseNames = ['Bitcoin Estate Planning Fundamentals', 'Technical Custody Solutions', 'Ethics & Compliance in Crypto Law', 'Advanced Trust Structures']
       steps.push({
@@ -96,7 +96,7 @@ export default function DashboardPage() {
       })
     } else {
       // Find next course to start
-      const nextCourse = progress.courses.find(c => c.status === 'not-started')
+      const nextCourse = userProgress.courses.find(c => c.status === 'not-started')
       if (nextCourse) {
         const courseNames = ['Bitcoin Estate Planning Fundamentals', 'Technical Custody Solutions', 'Ethics & Compliance in Crypto Law', 'Advanced Trust Structures']
         steps.push({
@@ -110,7 +110,7 @@ export default function DashboardPage() {
     }
     
     // Check for next SOP phase
-    const nextSOPPhase = progress.sopPhases.find(p => p.status === 'not-started')
+    const nextSOPPhase = userProgress.sopPhases.find(p => p.status === 'not-started')
     if (nextSOPPhase) {
       steps.push({
         title: `Review SOP Phase ${nextSOPPhase.phase}`,
