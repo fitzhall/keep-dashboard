@@ -115,7 +115,7 @@ export default function CLEPage() {
       </div>
 
       {/* Course List */}
-      <div className="grid gap-6">
+      <div className="space-y-8">
         {courses.map((course, index) => (
           <motion.div
             key={course.id}
@@ -123,80 +123,89 @@ export default function CLEPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 + index * 0.1 }}
           >
-            <Card>
-              <CardHeader>
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-xl">{course.title}</CardTitle>
-                    <p className="text-muted-foreground">{course.description}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
+                  <div className="space-y-3 flex-1">
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="text-xl">{course.title}</CardTitle>
+                      <Badge 
+                        variant={
+                          course.status === 'completed' ? 'default' :
+                          course.status === 'in-progress' ? 'secondary' :
+                          'outline'
+                        }
+                        className="px-3 py-1"
+                      >
+                        {course.status === 'completed' ? 'Completed' :
+                         course.status === 'in-progress' ? 'In Progress' :
+                         'Not Started'}
+                      </Badge>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">{course.description}</p>
+                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         {course.duration}
                       </span>
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-2">
                         <Award className="h-4 w-4" />
                         {course.credits} CLE Credits
                       </span>
                     </div>
                   </div>
-                  <Badge 
-                    variant={
-                      course.status === 'completed' ? 'default' :
-                      course.status === 'in-progress' ? 'secondary' :
-                      'outline'
-                    }
-                  >
-                    {course.status === 'completed' ? 'Completed' :
-                     course.status === 'in-progress' ? 'In Progress' :
-                     'Not Started'}
-                  </Badge>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 {course.status === 'in-progress' && (
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span>Progress</span>
-                      <span>{course.progress}%</span>
+                  <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between text-sm mb-3">
+                      <span className="font-medium text-blue-700">Course Progress</span>
+                      <span className="font-bold text-blue-700">{course.progress}%</span>
                     </div>
-                    <Progress value={course.progress} className="w-full" />
+                    <Progress value={course.progress} className="w-full h-2" />
                   </div>
                 )}
                 
                 {course.status === 'completed' && course.completedDate && (
-                  <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center justify-between">
-                      <span className="text-green-700 font-medium">
-                        Completed on {new Date(course.completedDate).toLocaleDateString()}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-green-700 font-medium">
+                          Completed on {new Date(course.completedDate).toLocaleDateString()}
+                        </span>
+                      </div>
                       <Button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-2" />
-                        Certificate
+                        Download Certificate
                       </Button>
                     </div>
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {course.status === 'not-started' && (
-                    <Button>
-                      <PlayCircle className="h-4 w-4 mr-2" />
+                    <Button size="lg" className="px-6">
+                      <PlayCircle className="h-5 w-5 mr-2" />
                       Start Course
                     </Button>
                   )}
                   {course.status === 'in-progress' && (
-                    <Button>
-                      <PlayCircle className="h-4 w-4 mr-2" />
+                    <Button size="lg" className="px-6">
+                      <PlayCircle className="h-5 w-5 mr-2" />
                       Continue Course
                     </Button>
                   )}
                   {course.status === 'completed' && (
-                    <Button variant="outline">
-                      <PlayCircle className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="lg" className="px-6">
+                      <PlayCircle className="h-5 w-5 mr-2" />
                       Review Course
                     </Button>
                   )}
+                  <Button variant="ghost" size="lg">
+                    View Syllabus
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -206,30 +215,75 @@ export default function CLEPage() {
 
       {/* Certification Card */}
       <motion.div 
-        className="mt-8"
+        className="mt-12"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
       >
-        <Card className="border-primary">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />
-              KEEP Bitcoin Estate Planning Certification
-            </CardTitle>
+        <Card className="border-primary bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Award className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">KEEP Bitcoin Estate Planning Certification</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Demonstrate your expertise and commitment to professional Bitcoin estate planning
+                </p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Complete all courses to earn your official KEEP certification and demonstrate your expertise in Bitcoin estate planning.
-            </p>
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <span className="font-medium">{earnedCredits} of {totalCredits} credits earned</span>
-                <Progress value={(earnedCredits / totalCredits) * 100} className="w-64 mt-2" />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-white rounded-lg border">
+                  <div className="text-2xl font-bold text-primary">{earnedCredits}</div>
+                  <div className="text-sm text-muted-foreground">Credits Earned</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg border">
+                  <div className="text-2xl font-bold">{totalCredits}</div>
+                  <div className="text-sm text-muted-foreground">Total Required</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg border">
+                  <div className="text-2xl font-bold text-green-600">
+                    {Math.round((earnedCredits / totalCredits) * 100)}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Complete</div>
+                </div>
               </div>
-              <Button disabled={earnedCredits < totalCredits}>
-                {earnedCredits >= totalCredits ? 'Download Certificate' : 'Complete All Courses'}
-              </Button>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">Certification Progress</span>
+                  <span className="text-muted-foreground">{earnedCredits} / {totalCredits} credits</span>
+                </div>
+                <Progress value={(earnedCredits / totalCredits) * 100} className="h-3" />
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">
+                    {earnedCredits >= totalCredits ? 
+                      '🎉 Congratulations! You\'re ready for certification.' :
+                      `${totalCredits - earnedCredits} more credits needed to complete certification`
+                    }
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Your certificate will be issued within 24 hours of completion
+                  </p>
+                </div>
+                <Button 
+                  size="lg"
+                  disabled={earnedCredits < totalCredits}
+                  className="px-8"
+                >
+                  {earnedCredits >= totalCredits ? 
+                    <><Download className="h-4 w-4 mr-2" />Download Certificate</> : 
+                    'Complete Remaining Courses'
+                  }
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
