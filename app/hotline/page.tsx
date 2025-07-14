@@ -47,14 +47,12 @@ export default function HotlinePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 2000))
     setIsSubmitting(false)
-    // Would show success message in real implementation
   }
 
   return (
-    <>
+    <div>
       <motion.div 
         className="mb-8"
         initial={{ opacity: 0, y: -20 }}
@@ -68,228 +66,161 @@ export default function HotlinePage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Submit New Ticket */}
         <div className="lg:col-span-2">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5" />
-                  Submit Support Request
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="technical">Technical Setup</SelectItem>
-                          <SelectItem value="legal">Legal Guidance</SelectItem>
-                          <SelectItem value="process">Process Questions</SelectItem>
-                          <SelectItem value="compliance">Compliance</SelectItem>
-                          <SelectItem value="client">Client Communication</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="priority">Priority</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low - General inquiry</SelectItem>
-                          <SelectItem value="medium">Medium - Need guidance</SelectItem>
-                          <SelectItem value="high">High - Urgent client matter</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <HelpCircle className="h-5 w-5" />
+                Submit Support Request
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input 
-                      id="subject" 
-                      placeholder="Brief description of your question"
-                      required
-                    />
+                    <Label htmlFor="category">Category</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="technical">Technical Setup</SelectItem>
+                        <SelectItem value="legal">Legal Guidance</SelectItem>
+                        <SelectItem value="process">Process Questions</SelectItem>
+                        <SelectItem value="compliance">Compliance</SelectItem>
+                        <SelectItem value="client">Client Communication</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="description">Detailed Description</Label>
-                    <Textarea 
-                      id="description"
-                      placeholder="Please provide as much detail as possible about your question or situation..."
-                      className="min-h-[120px]"
-                      required
-                    />
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low - General inquiry</SelectItem>
+                        <SelectItem value="medium">Medium - Need guidance</SelectItem>
+                        <SelectItem value="high">High - Urgent client matter</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="client-context">Client Context (Optional)</Label>
-                    <Textarea 
-                      id="client-context"
-                      placeholder="Any relevant client information (keep confidential details general)"
-                      className="min-h-[80px]"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input 
+                    id="subject" 
+                    placeholder="Brief description of your question"
+                    required
+                  />
+                </div>
 
-                  <Button type="submit" disabled={isSubmitting} className="w-full">
-                    {isSubmitting ? 'Submitting...' : 'Submit Request'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Detailed Description</Label>
+                  <Textarea 
+                    id="description"
+                    placeholder="Please provide as much detail as possible about your question or situation..."
+                    className="min-h-[120px]"
+                    required
+                  />
+                </div>
+
+                <Button type="submit" disabled={isSubmitting} className="w-full">
+                  {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Response Time Guarantee */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Response Guarantee
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">High Priority</span>
-                    <Badge variant="destructive">< 4 hours</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Medium Priority</span>
-                    <Badge variant="secondary">< 24 hours</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Low Priority</span>
-                    <Badge variant="outline">< 48 hours</Badge>
-                  </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Response Guarantee
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">High Priority</span>
+                  <Badge variant="destructive">4 hours</Badge>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Emergency Contact */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="border-red-200 bg-red-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-700">
-                  <Phone className="h-5 w-5" />
-                  Emergency Contact
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-red-600 mb-3">
-                  For urgent matters requiring immediate attention
-                </p>
-                <Button variant="destructive" className="w-full">
-                  Call Emergency Line
-                </Button>
-                <p className="text-xs text-red-500 mt-2">
-                  Available 24/7 for active cases only
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Quick Tips */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Tips</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <strong>Be Specific:</strong> Include relevant details about your situation
-                  </div>
-                  <div>
-                    <strong>Attach Context:</strong> Reference specific SOP phases when applicable
-                  </div>
-                  <div>
-                    <strong>Client Privacy:</strong> Keep confidential details general
-                  </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Medium Priority</span>
+                  <Badge variant="secondary">24 hours</Badge>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Low Priority</span>
+                  <Badge variant="outline">48 hours</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-700">
+                <Phone className="h-5 w-5" />
+                Emergency Contact
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-red-600 mb-3">
+                For urgent matters requiring immediate attention
+              </p>
+              <Button variant="destructive" className="w-full">
+                Call Emergency Line
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      {/* Previous Tickets */}
-      <motion.div 
-        className="mt-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Your Recent Requests
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {tickets.map((ticket, index) => (
-                <motion.div
-                  key={ticket.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{ticket.id}</span>
-                      <Badge 
-                        variant={
-                          ticket.status === 'Open' ? 'secondary' :
-                          ticket.status === 'Answered' ? 'default' :
-                          'outline'
-                        }
-                      >
-                        {ticket.status}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {ticket.priority}
-                      </Badge>
-                    </div>
-                    <p className="text-sm font-medium">{ticket.subject}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{ticket.category}</span>
-                      <span>Created {ticket.createdAt}</span>
-                      <span>Response: {ticket.responseTime}</span>
-                    </div>
-                  </div>
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Your Recent Requests
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {tickets.map((ticket) => (
+              <div
+                key={ticket.id}
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+              >
+                <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    {ticket.status === 'Answered' && (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    )}
-                    {ticket.status === 'Open' && (
-                      <AlertCircle className="h-4 w-4 text-yellow-600" />
-                    )}
-                    <Button variant="ghost" size="sm">
-                      View
-                    </Button>
+                    <span className="font-medium">{ticket.id}</span>
+                    <Badge 
+                      variant={
+                        ticket.status === 'Open' ? 'secondary' :
+                        ticket.status === 'Answered' ? 'default' :
+                        'outline'
+                      }
+                    >
+                      {ticket.status}
+                    </Badge>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </>
+                  <p className="text-sm font-medium">{ticket.subject}</p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>{ticket.category}</span>
+                    <span>Created {ticket.createdAt}</span>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  View
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
