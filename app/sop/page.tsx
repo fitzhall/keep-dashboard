@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import DashboardLayout from '@/components/DashboardLayout'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import * as Tabs from '@radix-ui/react-tabs'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
@@ -24,10 +23,9 @@ export default function SOPPage() {
   const [selectedPhase, setSelectedPhase] = useState(1)
 
   return (
-    <DashboardLayout>
-      <div className="p-8">
-        <motion.div 
-          className="mb-8"
+    <>
+      <motion.div 
+        className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -247,7 +245,6 @@ export default function SOPPage() {
             </Card>
           </motion.div>
         </AnimatePresence>
-      </div>
-    </DashboardLayout>
+    </>
   )
 }
