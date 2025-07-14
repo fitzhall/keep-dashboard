@@ -1,13 +1,18 @@
 'use client'
 
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { motion } from 'framer-motion'
 import { 
-  UserGroupIcon, 
-  DocumentDuplicateIcon,
-  ChartBarIcon,
-  CogIcon 
-} from '@heroicons/react/24/outline'
+  Users, 
+  FileText,
+  BarChart,
+  Settings,
+  UserPlus,
+  Activity,
+  Shield
+} from 'lucide-react'
 
 export default function AdminPage() {
   return (
@@ -18,19 +23,19 @@ export default function AdminPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-bold text-secondary-900">Admin Panel</h1>
-        <p className="mt-2 text-secondary-600">
+        <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
+        <p className="text-muted-foreground">
           Manage users, monitor system activity, and configure platform settings.
         </p>
       </motion.div>
 
       {/* Admin Stats */}
-      <div className="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         {[
-          { name: 'Total Users', value: '47', icon: UserGroupIcon, color: 'text-primary-600' },
-          { name: 'Active Licenses', value: '10', icon: DocumentDuplicateIcon, color: 'text-green-600' },
-          { name: 'Documents Created', value: '283', icon: ChartBarIcon, color: 'text-amber-600' },
-          { name: 'System Health', value: '99.9%', icon: CogIcon, color: 'text-indigo-600' },
+          { name: 'Total Users', value: '47', icon: Users, trend: '+12%' },
+          { name: 'Active Licenses', value: '10', icon: Shield, trend: '+2' },
+          { name: 'Documents Created', value: '283', icon: FileText, trend: '+18%' },
+          { name: 'System Health', value: '99.9%', icon: Activity, trend: 'Stable' },
         ].map((stat, index) => (
           <motion.div
             key={stat.name}
@@ -38,16 +43,17 @@ export default function AdminPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Card className="p-6">
-              <div className="flex items-center">
-                <div className={`p-3 rounded-lg bg-secondary-50`}>
-                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-secondary-600">{stat.name}</p>
-                  <p className="text-2xl font-semibold text-secondary-900">{stat.value}</p>
-                </div>
-              </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.name}</CardTitle>
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-green-600">{stat.trend}</span> from last month
+                </p>
+              </CardContent>
             </Card>
           </motion.div>
         ))}
@@ -56,51 +62,103 @@ export default function AdminPage() {
       {/* Admin Actions */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
-          <h2 className="text-lg font-semibold text-secondary-900 mb-4">User Management</h2>
-          <div className="space-y-3">
-            <button className="w-full text-left px-4 py-3 rounded-lg border border-secondary-200 hover:bg-secondary-50 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">View All Users</span>
-                <span className="text-sm text-secondary-500">47 users</span>
-              </div>
-            </button>
-            <button className="w-full text-left px-4 py-3 rounded-lg border border-secondary-200 hover:bg-secondary-50 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Manage Licenses</span>
-                <span className="text-sm text-secondary-500">10 active</span>
-              </div>
-            </button>
-            <button className="w-full text-left px-4 py-3 rounded-lg border border-secondary-200 hover:bg-secondary-50 transition-colors">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Invite New User</span>
-                <span className="text-sm text-secondary-500">→</span>
-              </div>
-            </button>
-          </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              User Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full justify-between">
+                <span>View All Users</span>
+                <Badge variant="secondary">47 users</Badge>
+              </Button>
+              <Button variant="outline" className="w-full justify-between">
+                <span>Manage Licenses</span>
+                <Badge variant="secondary">10 active</Badge>
+              </Button>
+              <Button className="w-full justify-between">
+                <span className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Invite New User
+                </span>
+              </Button>
+            </div>
+          </CardContent>
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-secondary-900 mb-4">Recent Admin Activity</h2>
-          <div className="space-y-4">
-            {[
-              { action: 'New user registered', user: 'jane.smith@lawfirm.com', time: '2 hours ago' },
-              { action: 'License renewed', user: 'Founding Member #3', time: '5 hours ago' },
-              { action: 'Template updated', user: 'System', time: 'Yesterday' },
-            ].map((activity, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-3 border-b border-secondary-100 last:border-0"
-              >
-                <div>
-                  <p className="font-medium text-secondary-900">{activity.action}</p>
-                  <p className="text-sm text-secondary-600">{activity.user}</p>
-                </div>
-                <span className="text-sm text-secondary-500">{activity.time}</span>
-              </div>
-            ))}
-          </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Recent Admin Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[
+                { action: 'New user registered', user: 'jane.smith@lawfirm.com', time: '2 hours ago', type: 'user' },
+                { action: 'License renewed', user: 'Founding Member #3', time: '5 hours ago', type: 'license' },
+                { action: 'Template updated', user: 'System', time: 'Yesterday', type: 'system' },
+              ].map((activity, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center justify-between py-3 border-b last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <Badge 
+                      variant={activity.type === 'user' ? 'default' : activity.type === 'license' ? 'secondary' : 'outline'}
+                      className="w-2 h-2 p-0 rounded-full"
+                    />
+                    <div>
+                      <p className="font-medium">{activity.action}</p>
+                      <p className="text-sm text-muted-foreground">{activity.user}</p>
+                    </div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">{activity.time}</span>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions */}
+      <motion.div 
+        className="mt-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Quick Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button variant="outline" className="h-20 flex-col gap-2">
+                <BarChart className="h-6 w-6" />
+                <span>System Reports</span>
+              </Button>
+              <Button variant="outline" className="h-20 flex-col gap-2">
+                <Shield className="h-6 w-6" />
+                <span>Security Settings</span>
+              </Button>
+              <Button variant="outline" className="h-20 flex-col gap-2">
+                <FileText className="h-6 w-6" />
+                <span>Audit Logs</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </>
   )
 }
