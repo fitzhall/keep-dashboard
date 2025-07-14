@@ -1,10 +1,12 @@
 'use client'
 
-import DashboardLayout from '@/components/DashboardLayout'
-import { Card } from '@/components/ui/Card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import { AuditTable } from '@/components/AuditTable'
 import { motion } from 'framer-motion'
-import * as Progress from '@radix-ui/react-progress'
 import { useState } from 'react'
 
 const ethicsItems = [
@@ -49,73 +51,67 @@ export default function CompliancePage() {
   const progressPercentage = (completedCount / totalCount) * 100
 
   return (
-    <DashboardLayout>
-      <div className="p-8">
-        <motion.div 
-          className="mb-8"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold text-secondary-900">Compliance Center</h1>
-          <p className="mt-2 text-secondary-600">
-            Manage ethics requirements and regulatory compliance for Bitcoin estate planning.
-          </p>
-        </motion.div>
+    <>
+      <motion.div 
+        className="mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold tracking-tight">Compliance Center</h1>
+        <p className="text-muted-foreground">
+          Manage ethics requirements and regulatory compliance for Bitcoin estate planning.
+        </p>
+      </motion.div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Ethics Checklist */}
-          <Card className="lg:col-span-2">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-secondary-900">Ethics Checklist</h2>
-              <div className="mt-2">
-                <Progress.Root className="relative overflow-hidden bg-secondary-200 rounded-full w-full h-2">
-                  <Progress.Indicator
-                    className="bg-primary-600 w-full h-full transition-transform duration-500 ease-out"
-                    style={{ transform: `translateX(-${100 - progressPercentage}%)` }}
-                  />
-                </Progress.Root>
-                <p className="text-sm text-secondary-600 mt-1">{completedCount} of {totalCount} completed</p>
-              </div>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Ethics Checklist */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Ethics Checklist</CardTitle>
+            <div className="space-y-2">
+              <Progress value={progressPercentage} className="w-full" />
+              <p className="text-sm text-muted-foreground">{completedCount} of {totalCount} completed</p>
             </div>
-            
-            <div className="space-y-3">
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
               {ethicsItems.map((item, index) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="p-4 border border-secondary-200 rounded-lg hover:border-primary-300 transition-colors"
+                  className="flex items-start space-x-3 rounded-lg border p-4 hover:bg-accent transition-colors"
                 >
-                  <div className="flex items-start">
-                    <input
-                      type="checkbox"
-                      className="mt-1 mr-3 h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
-                      checked={checkedItems.includes(item.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setCheckedItems([...checkedItems, item.id])
-                        } else {
-                          setCheckedItems(checkedItems.filter(id => id !== item.id))
-                        }
-                      }}
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-secondary-900">{item.title}</p>
-                      <p className="text-sm text-secondary-600 mt-1">{item.description}</p>
-                    </div>
+                  <Checkbox
+                    checked={checkedItems.includes(item.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setCheckedItems([...checkedItems, item.id])
+                      } else {
+                        setCheckedItems(checkedItems.filter(id => id !== item.id))
+                      }
+                    }}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <p className="font-medium">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
-          </Card>
+          </CardContent>
+        </Card>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* 5-Day Onboarding */}
-            <Card>
-              <h3 className="font-semibold text-secondary-900 mb-4">5-Day Onboarding</h3>
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* 5-Day Onboarding */}
+          <Card>
+            <CardHeader>
+              <CardTitle>5-Day Onboarding</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="space-y-3">
                 {onboardingDays.map((day, index) => (
                   <motion.div
@@ -125,42 +121,46 @@ export default function CompliancePage() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-sm text-secondary-600">Day {day.day}: {day.task}</span>
-                    <span className={`text-sm font-medium ${
-                      day.status === 'Complete' ? 'text-green-600' :
-                      day.status === 'In Progress' ? 'text-amber-600' :
-                      'text-secondary-400'
-                    }`}>
+                    <span className="text-sm">Day {day.day}: {day.task}</span>
+                    <Badge variant={
+                      day.status === 'Complete' ? 'default' :
+                      day.status === 'In Progress' ? 'secondary' :
+                      'outline'
+                    }>
                       {day.status}
-                    </span>
+                    </Badge>
                   </motion.div>
                 ))}
               </div>
-            </Card>
+            </CardContent>
+          </Card>
 
-            {/* Quality Control */}
-            <Card>
-              <h3 className="font-semibold text-secondary-900 mb-4">Quality Control</h3>
-              <p className="text-sm text-secondary-600 mb-4">
+          {/* Quality Control */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quality Control</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
                 Submit completed client files for expert review
               </p>
-              <motion.button 
-                className="btn-primary w-full"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <Button className="w-full">
                 Submit for Review
-              </motion.button>
-            </Card>
-          </div>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Audit Trail */}
-        <Card className="mt-6">
-          <h2 className="text-lg font-semibold text-secondary-900 mb-4">Recent Compliance Activities</h2>
-          <AuditTable />
-        </Card>
       </div>
-    </DashboardLayout>
+
+      {/* Audit Trail */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Recent Compliance Activities</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AuditTable />
+        </CardContent>
+      </Card>
+    </>
   )
 }
