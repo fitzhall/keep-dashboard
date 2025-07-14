@@ -65,69 +65,88 @@ export default function HotlinePage() {
         </p>
       </motion.div>
 
-      {/* Response Time Cards */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
+      {/* Modern Response Time Cards */}
+      <div className="grid gap-6 md:grid-cols-3 mb-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">High Priority</CardTitle>
-              <Clock className="h-4 w-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-500">4 Hours</div>
-              <p className="text-xs text-muted-foreground">Urgent client matters</p>
-            </CardContent>
-          </Card>
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-600 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
+            <div className="relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-red-50 rounded-xl">
+                  <Clock className="h-5 w-5 text-red-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-full">URGENT</span>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-red-600">4 Hours</div>
+                <p className="text-sm text-gray-600">Urgent client matters</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Medium Priority</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">24 Hours</div>
-              <p className="text-xs text-muted-foreground">Need guidance</p>
-            </CardContent>
-          </Card>
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
+            <div className="relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-amber-50 rounded-xl">
+                  <Clock className="h-5 w-5 text-amber-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-full">STANDARD</span>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-amber-600">24 Hours</div>
+                <p className="text-sm text-gray-600">Need guidance</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Low Priority</CardTitle>
-              <Clock className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">48 Hours</div>
-              <p className="text-xs text-muted-foreground">General inquiries</p>
-            </CardContent>
-          </Card>
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity"></div>
+            <div className="relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-green-50 rounded-xl">
+                  <Clock className="h-5 w-5 text-green-600" />
+                </div>
+                <span className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-full">GENERAL</span>
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-green-600">48 Hours</div>
+                <p className="text-sm text-gray-600">General inquiries</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Submit New Ticket */}
+        {/* Modern Submit Form */}
         <div className="lg:col-span-2">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5" />
-                  Submit Support Request
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Our Bitcoin estate planning experts are here to help with any questions or challenges you're facing.
-                </p>
-              </CardHeader>
-              <CardContent>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-3xl blur-sm opacity-50"></div>
+              <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-lg">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-blue-50 rounded-xl">
+                    <HelpCircle className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Submit Support Request</h2>
+                    <p className="text-gray-600">
+                      Our Bitcoin estate planning experts are here to help with any questions or challenges you're facing.
+                    </p>
+                  </div>
+                </div>
+                
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
+                      <label className="text-sm font-semibold text-gray-700">Category</label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-12 rounded-xl border-gray-200">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -141,9 +160,9 @@ export default function HotlinePage() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="priority">Priority</Label>
+                      <label className="text-sm font-semibold text-gray-700">Priority</label>
                       <Select>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-12 rounded-xl border-gray-200">
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                         <SelectContent>
@@ -156,113 +175,129 @@ export default function HotlinePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input 
-                      id="subject" 
+                    <label className="text-sm font-semibold text-gray-700">Subject</label>
+                    <input 
+                      className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                       placeholder="Brief description of your question"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Detailed Description</Label>
-                    <Textarea 
-                      id="description"
+                    <label className="text-sm font-semibold text-gray-700">Detailed Description</label>
+                    <textarea 
+                      rows={6}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
                       placeholder="Please provide as much detail as possible about your question or situation. Include relevant client context while keeping confidential details general."
-                      className="min-h-[140px]"
                       required
                     />
                   </div>
 
-                  <Button type="submit" disabled={isSubmitting} className="w-full" size="lg">
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50"
+                  >
                     {isSubmitting ? 'Submitting Request...' : 'Submit Support Request'}
-                  </Button>
+                  </button>
                 </form>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </motion.div>
         </div>
 
-        {/* Sidebar */}
+        {/* Modern Sidebar */}
         <div className="space-y-6">
           {/* Emergency Contact */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="border-red-200 bg-red-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-700">
-                  <Phone className="h-5 w-5" />
-                  Emergency Contact
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-pink-600 rounded-2xl blur-lg opacity-20"></div>
+              <div className="relative bg-white rounded-2xl p-6 border border-red-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-red-50 rounded-xl">
+                    <Phone className="h-5 w-5 text-red-600" />
+                  </div>
+                  <h3 className="font-bold text-red-700">Emergency Contact</h3>
+                </div>
                 <p className="text-sm text-red-600 mb-4">
                   For urgent matters requiring immediate attention during active cases.
                 </p>
-                <Button variant="destructive" className="w-full mb-3">
-                  <Phone className="h-4 w-4 mr-2" />
+                <button className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl py-3 font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center justify-center gap-2 shadow-lg">
+                  <Phone className="h-4 w-4" />
                   Call Emergency Line
-                </Button>
-                <p className="text-xs text-red-500">
+                </button>
+                <p className="text-xs text-red-500 mt-3 text-center">
                   Available 24/7 for licensed attorneys with active cases
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </motion.div>
 
           {/* Quick Tips */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Info className="h-5 w-5" />
-                  Quick Tips
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 text-sm">
-                  <div className="flex gap-3">
-                    <Shield className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                    <div>
-                      <strong>Be Specific:</strong> Include relevant details about your situation and which SOP phase you're in.
-                    </div>
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-50 rounded-xl">
+                  <Info className="h-5 w-5 text-blue-600" />
+                </div>
+                <h3 className="font-bold text-gray-900">Quick Tips</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="p-1 bg-blue-50 rounded-lg mt-0.5">
+                    <Shield className="h-3 w-3 text-blue-600" />
                   </div>
-                  <div className="flex gap-3">
-                    <Shield className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                    <div>
-                      <strong>Client Privacy:</strong> Keep confidential details general while providing enough context for guidance.
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <Shield className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                    <div>
-                      <strong>Attach Context:</strong> Reference specific templates or compliance requirements when applicable.
-                    </div>
+                  <div className="text-sm">
+                    <strong className="text-gray-900">Be Specific:</strong> 
+                    <span className="text-gray-600"> Include relevant details about your situation and which SOP phase you're in.</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex gap-3">
+                  <div className="p-1 bg-blue-50 rounded-lg mt-0.5">
+                    <Shield className="h-3 w-3 text-blue-600" />
+                  </div>
+                  <div className="text-sm">
+                    <strong className="text-gray-900">Client Privacy:</strong> 
+                    <span className="text-gray-600"> Keep confidential details general while providing enough context for guidance.</span>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="p-1 bg-blue-50 rounded-lg mt-0.5">
+                    <Shield className="h-3 w-3 text-blue-600" />
+                  </div>
+                  <div className="text-sm">
+                    <strong className="text-gray-900">Attach Context:</strong> 
+                    <span className="text-gray-600"> Reference specific templates or compliance requirements when applicable.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Previous Tickets */}
+      {/* Modern Previous Tickets */}
       <motion.div 
-        className="mt-12"
+        className="mt-16"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
       >
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Your Recent Support Requests
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Track the status of your previous requests and view expert responses.
-            </p>
-          </CardHeader>
-          <CardContent>
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-100 to-gray-50 rounded-3xl blur-sm opacity-50"></div>
+          <div className="relative bg-white rounded-3xl p-8 border border-gray-100 shadow-lg">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-gray-50 rounded-xl">
+                <MessageSquare className="h-6 w-6 text-gray-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Your Recent Support Requests</h2>
+                <p className="text-gray-600">
+                  Track the status of your previous requests and view expert responses.
+                </p>
+              </div>
+            </div>
+            
             <div className="space-y-4">
               {tickets.map((ticket, index) => (
                 <motion.div
@@ -270,50 +305,59 @@ export default function HotlinePage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + index * 0.1 }}
-                  className="flex items-center justify-between p-6 border rounded-lg hover:bg-accent transition-colors"
+                  className="group relative"
                 >
-                  <div className="space-y-2">
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-white rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative flex items-center justify-between p-6 border border-gray-100 rounded-2xl hover:border-gray-200 transition-all">
+                    <div className="space-y-3 flex-1">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-gray-900 text-lg">{ticket.id}</span>
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          ticket.status === 'Open' ? 'bg-yellow-100 text-yellow-700' :
+                          ticket.status === 'Answered' ? 'bg-green-100 text-green-700' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {ticket.status}
+                        </div>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          ticket.priority === 'High' ? 'bg-red-100 text-red-600' :
+                          ticket.priority === 'Medium' ? 'bg-amber-100 text-amber-600' :
+                          'bg-blue-100 text-blue-600'
+                        }`}>
+                          {ticket.priority}
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-gray-900">{ticket.subject}</h3>
+                      <div className="flex items-center gap-6 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Shield className="h-3 w-3" />
+                          <span>{ticket.category}</span>
+                        </div>
+                        <span>Created {ticket.createdAt}</span>
+                        <span>Response: {ticket.responseTime}</span>
+                      </div>
+                    </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-medium text-lg">{ticket.id}</span>
-                      <Badge 
-                        variant={
-                          ticket.status === 'Open' ? 'secondary' :
-                          ticket.status === 'Answered' ? 'default' :
-                          'outline'
-                        }
-                      >
-                        {ticket.status}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {ticket.priority}
-                      </Badge>
+                      {ticket.status === 'Answered' && (
+                        <div className="p-2 bg-green-50 rounded-full">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        </div>
+                      )}
+                      {ticket.status === 'Open' && (
+                        <div className="p-2 bg-yellow-50 rounded-full">
+                          <AlertCircle className="h-5 w-5 text-yellow-600" />
+                        </div>
+                      )}
+                      <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">
+                        View Details
+                      </button>
                     </div>
-                    <p className="font-medium">{ticket.subject}</p>
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Shield className="h-3 w-3" />
-                        {ticket.category}
-                      </span>
-                      <span>Created {ticket.createdAt}</span>
-                      <span>Response: {ticket.responseTime}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {ticket.status === 'Answered' && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                    )}
-                    {ticket.status === 'Open' && (
-                      <AlertCircle className="h-5 w-5 text-yellow-600" />
-                    )}
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
                   </div>
                 </motion.div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </motion.div>
     </div>
   )
