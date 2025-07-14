@@ -30,51 +30,53 @@ export default function SOPPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-bold text-secondary-900">KEEP Implementation SOP</h1>
-          <p className="mt-2 text-secondary-600">
+          <h1 className="text-3xl font-bold tracking-tight">KEEP Implementation SOP</h1>
+          <p className="text-muted-foreground">
             Follow the 10-phase framework for Bitcoin estate planning excellence.
           </p>
         </motion.div>
 
         {/* Phase Progress Bar */}
         <Card className="mb-8">
-          <div className="flex items-center justify-between overflow-x-auto">
-            {phases.map((phase) => (
-              <motion.button
-                key={phase.id}
-                onClick={() => setSelectedPhase(phase.id)}
-                className="flex flex-col items-center group min-w-[80px]"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <motion.div
-                  className={`
-                    w-12 h-12 rounded-full flex items-center justify-center font-medium transition-all
-                    ${selectedPhase === phase.id 
-                      ? 'bg-primary-600 text-white shadow-lg' 
-                      : 'bg-secondary-200 text-secondary-600 hover:bg-secondary-300'
-                    }
-                  `}
-                  animate={{
-                    scale: selectedPhase === phase.id ? 1.1 : 1,
-                  }}
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between overflow-x-auto mb-4">
+              {phases.map((phase) => (
+                <motion.button
+                  key={phase.id}
+                  onClick={() => setSelectedPhase(phase.id)}
+                  className="flex flex-col items-center group min-w-[80px]"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {phase.id}
-                </motion.div>
-                <span className="text-xs mt-2 text-secondary-600 hidden lg:block">
-                  {phase.name}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-          <div className="mt-4 bg-secondary-200 rounded-full h-2 overflow-hidden">
-            <motion.div 
-              className="bg-primary-600 h-2 rounded-full"
-              initial={{ width: '0%' }}
-              animate={{ width: `${(selectedPhase / phases.length) * 100}%` }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-            />
-          </div>
+                  <motion.div
+                    className={`
+                      w-12 h-12 rounded-full flex items-center justify-center font-medium transition-all
+                      ${selectedPhase === phase.id 
+                        ? 'bg-primary text-primary-foreground shadow-lg' 
+                        : 'bg-muted text-muted-foreground hover:bg-accent'
+                      }
+                    `}
+                    animate={{
+                      scale: selectedPhase === phase.id ? 1.1 : 1,
+                    }}
+                  >
+                    {phase.id}
+                  </motion.div>
+                  <span className="text-xs mt-2 text-muted-foreground hidden lg:block">
+                    {phase.name}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <motion.div 
+                className="bg-primary h-2 rounded-full"
+                initial={{ width: '0%' }}
+                animate={{ width: `${(selectedPhase / phases.length) * 100}%` }}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
+              />
+            </div>
+          </CardContent>
         </Card>
 
         {/* Phase Content */}
@@ -87,14 +89,15 @@ export default function SOPPage() {
             transition={{ duration: 0.3 }}
           >
             <Card>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-secondary-900">
+              <CardHeader>
+                <CardTitle className="text-2xl">
                   Phase {selectedPhase}: {phases.find(p => p.id === selectedPhase)?.name}
-                </h2>
-                <p className="mt-2 text-secondary-600">
+                </CardTitle>
+                <p className="text-muted-foreground">
                   {phases.find(p => p.id === selectedPhase)?.description}
                 </p>
-              </div>
+              </CardHeader>
+              <CardContent>
 
               {/* Tabs */}
               <Tabs.Root defaultValue="description" className="w-full">
@@ -242,6 +245,7 @@ export default function SOPPage() {
                   <ChevronRightIcon className="w-4 h-4 ml-1" />
                 </motion.button>
               </div>
+              </CardContent>
             </Card>
           </motion.div>
         </AnimatePresence>
