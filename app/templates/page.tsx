@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
 import { Download, Search, FileText, Shield, Users, BookOpen, Scale, CreditCard } from 'lucide-react'
 import { useState } from 'react'
+import { useUserProgress } from '@/contexts/UserProgressContext'
 
 const templates = [
   {
@@ -98,6 +99,7 @@ const templates = [
 const categories = ['All', 'Legal Documents', 'Assessment Tools', 'Compliance', 'Client Education', 'Technical Guides', 'Business']
 
 export default function TemplatesPage() {
+  const { progress, dispatch } = useUserProgress()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
 
@@ -115,8 +117,16 @@ export default function TemplatesPage() {
     link.download = filename
     link.click()
     
-    // In a real implementation, you'd track this download
-    console.log(`Downloaded: ${templateName}`)
+    // Track the download in progress
+    dispatch({ 
+      type: 'DOWNLOAD_TEMPLATE', 
+      templateId: filename, 
+      templateName 
+    })
+  }
+
+  const isDownloaded = (filename: string) => {
+    return progress.templatesDownloaded.includes(filename)
   }
 
   return (
@@ -216,9 +226,10 @@ export default function TemplatesPage() {
                   className="w-full"
                   onClick={() => handleDownload(template.filename, template.name)}
                   disabled={template.premium}
+                  variant={isDownloaded(template.filename) ? "secondary" : "default"}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {template.premium ? 'Premium Only' : 'Download'}
+                  {template.premium ? 'Premium Only' : isDownloaded(template.filename) ? 'Downloaded' : 'Download'}
                 </Button>
               </CardContent>
             </Card>

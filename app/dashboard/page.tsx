@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { motion } from 'framer-motion'
+import { useUserProgress } from '@/contexts/UserProgressContext'
+import Link from 'next/link'
 import { 
   Award, 
   BookOpen, 
@@ -21,71 +23,115 @@ import {
 } from 'lucide-react'
 
 export default function DashboardPage() {
-  // Mock data for professional development metrics
-  const cleProgress = 22 // 2.5 out of 11.5 credits
-  const sopPhasesCompleted = 3
-  const totalSopPhases = 7
-  const templatesDownloaded = 4
-  const complianceScore = 85
+  const { progress } = useUserProgress()
+  
+  // Calculate dynamic metrics
+  const courseCredits = [2.5, 3, 2, 4] // Credits for each course
+  const totalCredits = courseCredits.reduce((sum, credits) => sum + credits, 0)
+  const earnedCredits = progress.courses.reduce((sum, course, index) => {
+    return sum + (course.status === 'completed' ? courseCredits[index] : 0)
+  }, 0)
+  const cleProgress = Math.round((earnedCredits / totalCredits) * 100)
+  
+  const sopPhasesCompleted = progress.sopPhases.filter(phase => phase.status === 'completed').length
+  const totalSopPhases = progress.sopPhases.length
+  const templatesDownloaded = progress.templatesDownloaded.length
+  const complianceScore = progress.complianceScore
 
-  const recentActivity = [
-    { 
-      type: 'training', 
-      title: 'Completed Bitcoin Estate Planning Fundamentals', 
-      description: 'Earned 2.5 CLE credits', 
-      time: '2 days ago',
-      icon: Award,
-      color: 'text-blue-600'
-    },
-    { 
-      type: 'template', 
-      title: 'Downloaded Bitcoin Trust Template', 
-      description: 'Added to your practice toolkit', 
-      time: '3 days ago',
-      icon: FileText,
-      color: 'text-green-600'
-    },
-    { 
-      type: 'support', 
-      title: 'Expert Hotline Response Received', 
-      description: 'Multi-sig setup guidance provided', 
-      time: '5 days ago',
-      icon: HelpCircle,
-      color: 'text-purple-600'
-    },
-    { 
-      type: 'compliance', 
-      title: 'Compliance Checklist Updated', 
-      description: 'New California regulations added', 
-      time: '1 week ago',
-      icon: Shield,
-      color: 'text-orange-600'
+  // Get recent activity with proper time formatting
+  const recentActivity = progress.activity.slice(0, 4).map(activity => {
+    const timeAgo = getTimeAgo(activity.timestamp)
+    const iconMap = {
+      training: Award,
+      template: FileText,
+      support: HelpCircle,
+      compliance: Shield,
+      sop: BookOpen
     }
-  ]
+    const colorMap = {
+      training: 'text-blue-600',
+      template: 'text-green-600', 
+      support: 'text-purple-600',
+      compliance: 'text-orange-600',
+      sop: 'text-indigo-600'
+    }
+    
+    return {
+      ...activity,
+      time: timeAgo,
+      icon: iconMap[activity.type],
+      color: colorMap[activity.type]
+    }
+  })
 
-  const nextSteps = [
-    {
-      title: 'Continue Technical Custody Solutions',
-      description: 'Complete your in-progress course (65% done)',
-      action: 'Continue Course',
-      href: '/cle',
-      priority: 'high'
-    },
-    {
-      title: 'Review SOP Phase 4: Technical Implementation',
-      description: 'Learn multi-signature wallet setup',
-      action: 'Start Phase',
-      href: '/sop',
-      priority: 'medium'
-    },
-    {
-      title: 'Download Beneficiary Designation Form',
-      description: 'Premium template for client documentation',
-      action: 'Download',
+  // Generate dynamic next steps based on progress
+  const nextSteps = generateNextSteps(progress)
+
+  function getTimeAgo(timestamp: string): string {
+    const now = new Date()
+    const date = new Date(timestamp)
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) return 'Just now'
+    if (diffInHours < 24) return `${diffInHours} hours ago`
+    if (diffInHours < 48) return 'Yesterday'
+    const days = Math.floor(diffInHours / 24)
+    if (days < 7) return `${days} days ago`
+    return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? 's' : ''} ago`
+  }
+
+  function generateNextSteps(progress: typeof progress) {
+    const steps = []
+    
+    // Check for in-progress courses
+    const inProgressCourse = progress.courses.find(c => c.status === 'in-progress')
+    if (inProgressCourse) {
+      const courseNames = ['Bitcoin Estate Planning Fundamentals', 'Technical Custody Solutions', 'Ethics & Compliance in Crypto Law', 'Advanced Trust Structures']
+      steps.push({
+        title: `Continue ${courseNames[inProgressCourse.id - 1]}`,
+        description: `Complete your in-progress course (${inProgressCourse.progress}% done)`,
+        action: 'Continue Course',
+        href: '/cle',
+        priority: 'high'
+      })
+    } else {
+      // Find next course to start
+      const nextCourse = progress.courses.find(c => c.status === 'not-started')
+      if (nextCourse) {
+        const courseNames = ['Bitcoin Estate Planning Fundamentals', 'Technical Custody Solutions', 'Ethics & Compliance in Crypto Law', 'Advanced Trust Structures']
+        steps.push({
+          title: `Start ${courseNames[nextCourse.id - 1]}`,
+          description: 'Begin your next CLE course',
+          action: 'Start Course',
+          href: '/cle',
+          priority: 'high'
+        })
+      }
+    }
+    
+    // Check for next SOP phase
+    const nextSOPPhase = progress.sopPhases.find(p => p.status === 'not-started')
+    if (nextSOPPhase) {
+      steps.push({
+        title: `Review SOP Phase ${nextSOPPhase.phase}`,
+        description: 'Continue mastering the KEEP methodology',
+        action: 'Start Phase',
+        href: '/sop',
+        priority: 'medium'
+      })
+    }
+    
+    // Always suggest template downloads
+    steps.push({
+      title: 'Expand Practice Toolkit',
+      description: 'Download additional templates for your practice',
+      action: 'Browse Templates',
       href: '/templates',
       priority: 'low'
-    }
-  ]
+    })
+    
+    return steps.slice(0, 3) // Return top 3 recommendations
+  }
 
   return (
     <>
@@ -111,7 +157,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{cleProgress}%</div>
-              <p className="text-xs text-muted-foreground">2.5 of 11.5 credits earned</p>
+              <p className="text-xs text-muted-foreground">{earnedCredits} of {totalCredits} credits earned</p>
               <Progress value={cleProgress} className="mt-2 h-2" />
             </CardContent>
           </Card>
@@ -259,9 +305,11 @@ export default function DashboardPage() {
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mb-3">{step.description}</p>
-                    <Button variant="outline" size="sm" className="w-full">
-                      {step.action}
-                      <ArrowRight className="h-3 w-3 ml-1" />
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={step.href}>
+                        {step.action}
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Link>
                     </Button>
                   </div>
                 ))}

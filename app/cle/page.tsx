@@ -6,55 +6,80 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { motion } from 'framer-motion'
 import { PlayCircle, CheckCircle, Clock, Download, Award } from 'lucide-react'
+import { useUserProgress } from '@/contexts/UserProgressContext'
 
-const courses = [
+const coursesData = [
   {
     id: 1,
     title: 'Bitcoin Estate Planning Fundamentals',
     description: 'Complete overview of Bitcoin estate planning principles and regulatory requirements',
     duration: '2.5 hours',
-    credits: 2.5,
-    status: 'completed',
-    progress: 100,
-    completedDate: '2024-01-10'
+    credits: 2.5
   },
   {
     id: 2,
     title: 'Technical Custody Solutions',
     description: 'Deep dive into multisig, hardware wallets, and institutional custody options',
     duration: '3 hours',
-    credits: 3,
-    status: 'in-progress',
-    progress: 65,
-    completedDate: null
+    credits: 3
   },
   {
     id: 3,
     title: 'Ethics & Compliance in Crypto Law',
     description: 'Navigate ethical considerations and compliance requirements for cryptocurrency law',
     duration: '2 hours',
-    credits: 2,
-    status: 'not-started',
-    progress: 0,
-    completedDate: null
+    credits: 2
   },
   {
     id: 4,
     title: 'Advanced Trust Structures',
     description: 'Complex trust arrangements for high-net-worth Bitcoin estate planning',
     duration: '4 hours',
-    credits: 4,
-    status: 'not-started',
-    progress: 0,
-    completedDate: null
+    credits: 4
   }
 ]
 
 export default function CLEPage() {
+  const { progress, dispatch } = useUserProgress()
+  
+  // Merge course data with progress
+  const courses = coursesData.map(courseData => {
+    const courseProgress = progress.courses.find(c => c.id === courseData.id)
+    return {
+      ...courseData,
+      status: courseProgress?.status || 'not-started',
+      progress: courseProgress?.progress || 0,
+      completedDate: courseProgress?.completedDate
+    }
+  })
+  
   const totalCredits = courses.reduce((sum, course) => sum + course.credits, 0)
   const earnedCredits = courses
     .filter(course => course.status === 'completed')
     .reduce((sum, course) => sum + course.credits, 0)
+
+  const handleCourseAction = (courseId: number, action: 'start' | 'continue' | 'complete') => {
+    switch (action) {
+      case 'start':
+        dispatch({ type: 'START_COURSE', courseId })
+        dispatch({ type: 'UPDATE_COURSE_PROGRESS', courseId, progress: 5 }) // Start with 5%
+        break
+      case 'continue':
+        // Simulate progress increment
+        const currentCourse = progress.courses.find(c => c.id === courseId)
+        if (currentCourse && currentCourse.progress < 100) {
+          const newProgress = Math.min(currentCourse.progress + 15, 100)
+          dispatch({ type: 'UPDATE_COURSE_PROGRESS', courseId, progress: newProgress })
+          if (newProgress === 100) {
+            dispatch({ type: 'COMPLETE_COURSE', courseId })
+          }
+        }
+        break
+      case 'complete':
+        dispatch({ type: 'COMPLETE_COURSE', courseId })
+        break
+    }
+  }
 
   return (
     <>
@@ -186,13 +211,21 @@ export default function CLEPage() {
 
                 <div className="flex gap-3">
                   {course.status === 'not-started' && (
-                    <Button size="lg" className="px-6">
+                    <Button 
+                      size="lg" 
+                      className="px-6"
+                      onClick={() => handleCourseAction(course.id, 'start')}
+                    >
                       <PlayCircle className="h-5 w-5 mr-2" />
                       Start Course
                     </Button>
                   )}
                   {course.status === 'in-progress' && (
-                    <Button size="lg" className="px-6">
+                    <Button 
+                      size="lg" 
+                      className="px-6"
+                      onClick={() => handleCourseAction(course.id, 'continue')}
+                    >
                       <PlayCircle className="h-5 w-5 mr-2" />
                       Continue Course
                     </Button>

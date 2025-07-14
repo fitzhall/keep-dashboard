@@ -1,11 +1,14 @@
 'use client'
 
 import { Auth0Provider } from '@auth0/nextjs-auth0'
+import { UserProgressProvider } from '@/contexts/UserProgressContext'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Auth0Provider>
-      {children}
+      <UserProgressProvider>
+        {children}
+      </UserProgressProvider>
     </Auth0Provider>
   )
 }
