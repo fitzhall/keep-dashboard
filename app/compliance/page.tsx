@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AuditTable } from '@/components/AuditTable'
 import { ComplianceScorecard } from '@/components/ComplianceScorecard'
+import { AuditReportGenerator } from '@/components/AuditReportGenerator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
@@ -71,6 +72,7 @@ export default function CompliancePage() {
           <TabsTrigger value="scorecard">Compliance Scorecard</TabsTrigger>
           <TabsTrigger value="checklist">Ethics Checklist</TabsTrigger>
           <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+          <TabsTrigger value="reports">Audit Reports</TabsTrigger>
         </TabsList>
 
         <TabsContent value="scorecard">
@@ -178,6 +180,10 @@ export default function CompliancePage() {
               <AuditTable />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <AuditReportGenerator />
         </TabsContent>
       </Tabs>
     </>
