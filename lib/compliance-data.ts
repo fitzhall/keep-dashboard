@@ -253,11 +253,17 @@ export async function getComplianceCategories(userId: string): Promise<Complianc
   try {
     console.log('Fetching compliance categories for user:', userId)
     
-    const { data, error } = await supabase
-      .from('compliance_categories')
-      .select('*')
-      .eq('user_id', userId)
-      .order('category_id')
+    // Add timeout to prevent hanging
+    const { data, error } = await Promise.race([
+      supabase
+        .from('compliance_categories')
+        .select('*')
+        .eq('user_id', userId)
+        .order('category_id'),
+      new Promise<{ data: null, error: Error }>((resolve) => 
+        setTimeout(() => resolve({ data: null, error: new Error('Query timeout') }), 5000)
+      )
+    ])
 
     if (error) {
       console.error('Error fetching compliance categories:', error)
