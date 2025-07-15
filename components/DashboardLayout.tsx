@@ -30,7 +30,7 @@ const navigation = [
   { name: 'Training', href: '/training', icon: BookOpen, roles: ['admin', 'attorney', 'paralegal'] },
   { name: 'KEEP SOP', href: '/sop', icon: GraduationCap, roles: ['admin', 'attorney', 'paralegal'] },
   { name: 'Templates', href: '/templates', icon: FileText, roles: ['admin', 'attorney', 'paralegal'] },
-  { name: 'Compliance', href: '/compliance', icon: Shield, roles: ['admin', 'attorney', 'paralegal'] },
+  // { name: 'Compliance', href: '/compliance', icon: Shield, roles: ['admin', 'attorney', 'paralegal'] }, // TEMPORARILY DISABLED
   { name: 'CLE Training', href: '/cle', icon: Award, roles: ['admin', 'attorney'] },
   { name: 'Expert Hotline', href: '/hotline', icon: HelpCircle, roles: ['admin', 'attorney'] },
   { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'attorney', 'paralegal'] },
