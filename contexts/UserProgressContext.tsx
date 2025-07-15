@@ -342,7 +342,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         // Merge with initial state
         const mergedProgress: UserProgress = {
           courses: initialProgress.courses.map(course => {
-            const dbCourse = courses?.find(c => c.course_id === course.id)
+            const dbCourse = courses?.find((c: any) => c.course_id === course.id)
             return dbCourse ? {
               id: course.id,
               status: dbCourse.status,
@@ -352,7 +352,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
             } : course
           }),
           sopPhases: initialProgress.sopPhases.map(phase => {
-            const dbPhase = sopPhases?.find(p => p.phase === phase.phase)
+            const dbPhase = sopPhases?.find((p: any) => p.phase === phase.phase)
             return dbPhase ? {
               phase: phase.phase,
               status: dbPhase.status,
@@ -360,9 +360,9 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
               lastAccessed: dbPhase.last_accessed
             } : phase
           }),
-          templatesDownloaded: templates?.map(t => t.template_id) || [],
+          templatesDownloaded: templates?.map((t: any) => t.template_id) || [],
           complianceScore: compliance?.score || 0,
-          activity: activities?.map(a => ({
+          activity: activities?.map((a: any) => ({
             id: a.id,
             type: a.type,
             title: a.title,
