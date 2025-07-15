@@ -55,9 +55,10 @@ export function OnboardingChecklist() {
 
     try {
       const data = await getOnboardingTasks(userProfile.id)
-      setTasks(data)
+      setTasks(data || [])
     } catch (error) {
       console.error('Error loading onboarding tasks:', error)
+      setTasks([])
       toast({
         title: 'Error loading tasks',
         description: 'Please try refreshing the page',

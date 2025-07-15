@@ -105,11 +105,13 @@ export function ComplianceScorecard() {
       console.log('Loading compliance data for user:', userProfile.id)
       const data = await getComplianceCategories(userProfile.id)
       console.log('Compliance categories loaded:', data)
-      setCategories(data)
-      const score = calculateOverallScore(data)
+      setCategories(data || [])
+      const score = calculateOverallScore(data || [])
       setOverallScore(score)
     } catch (error) {
       console.error('Error loading compliance data:', error)
+      setCategories([])
+      setOverallScore(0)
       toast({
         title: 'Error loading compliance data',
         description: 'Please try refreshing the page',
@@ -191,7 +193,7 @@ export function ComplianceScorecard() {
 
       {/* Category Breakdown */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category, index) => {
+        {categories.length > 0 ? categories.map((category, index) => {
           const Icon = categoryIcons[category.category_id] || Shield
           const status = getStatus(category.score)
           
@@ -233,7 +235,11 @@ export function ComplianceScorecard() {
               </Card>
             </motion.div>
           )
-        })}
+        }) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">No compliance data available</p>
+          </div>
+        )}
       </div>
 
       {/* Action Items */}

@@ -253,82 +253,26 @@ export async function getComplianceCategories(userId: string): Promise<Complianc
   try {
     console.log('Fetching compliance categories for user:', userId)
     
-    // Add timeout to prevent hanging
-    const { data, error } = await Promise.race([
-      supabase
-        .from('compliance_categories')
-        .select('*')
-        .eq('user_id', userId)
-        .order('category_id'),
-      new Promise<{ data: null, error: Error }>((resolve) => 
-        setTimeout(() => resolve({ data: null, error: new Error('Query timeout') }), 5000)
-      )
-    ])
+    const { data, error } = await supabase
+      .from('compliance_categories')
+      .select('*')
+      .eq('user_id', userId)
+      .order('category_id')
 
     if (error) {
       console.error('Error fetching compliance categories:', error)
-      // Return mock data for development
-      return defaultCategories.map(cat => ({
-        id: crypto.randomUUID(),
-        user_id: userId,
-        category_id: cat.id,
-        category_name: cat.name,
-        score: Math.floor(Math.random() * 30) + 70, // Random score between 70-100
-        items_completed: Math.floor(Math.random() * cat.total),
-        items_total: cat.total,
-        trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable',
-        last_updated: new Date().toISOString(),
-        created_at: new Date().toISOString()
-      }))
+      throw error
     }
 
-    // Initialize if no data exists
     if (!data || data.length === 0) {
-      console.log('No compliance data found, initializing...')
-      await initializeComplianceData(userId)
-      
-      // Fetch again after initialization
-      const { data: newData, error: newError } = await supabase
-        .from('compliance_categories')
-        .select('*')
-        .eq('user_id', userId)
-        .order('category_id')
-        
-      if (newError || !newData) {
-        // Return mock data if initialization failed
-        return defaultCategories.map(cat => ({
-          id: crypto.randomUUID(),
-          user_id: userId,
-          category_id: cat.id,
-          category_name: cat.name,
-          score: Math.floor(Math.random() * 30) + 70,
-          items_completed: Math.floor(Math.random() * cat.total),
-          items_total: cat.total,
-          trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable',
-          last_updated: new Date().toISOString(),
-          created_at: new Date().toISOString()
-        }))
-      }
-      
-      return newData
+      console.log('No compliance data found')
+      return []
     }
 
     return data
   } catch (error) {
-    console.error('Unexpected error in getComplianceCategories:', error)
-    // Return mock data as fallback
-    return defaultCategories.map(cat => ({
-      id: crypto.randomUUID(),
-      user_id: userId,
-      category_id: cat.id,
-      category_name: cat.name,
-      score: Math.floor(Math.random() * 30) + 70,
-      items_completed: Math.floor(Math.random() * cat.total),
-      items_total: cat.total,
-      trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable',
-      last_updated: new Date().toISOString(),
-      created_at: new Date().toISOString()
-    }))
+    console.error('Error in getComplianceCategories:', error)
+    throw error
   }
 }
 
@@ -364,62 +308,18 @@ export async function getEthicsChecklist(userId: string): Promise<EthicsChecklis
 
     if (error) {
       console.error('Error fetching ethics checklist:', error)
-      // Return mock data for development
-      return defaultEthicsItems.map(item => ({
-        id: crypto.randomUUID(),
-        user_id: userId,
-        item_id: item.item_id,
-        title: item.title,
-        description: item.description,
-        completed: Math.random() > 0.5,
-        completed_at: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }))
+      throw error
     }
 
-    // Initialize if no data exists
     if (!data || data.length === 0) {
-      await initializeComplianceData(userId)
-      const { data: newData, error: newError } = await supabase
-        .from('ethics_checklist')
-        .select('*')
-        .eq('user_id', userId)
-        .order('item_id')
-      
-      if (newError || !newData) {
-        // Return mock data if initialization failed
-        return defaultEthicsItems.map(item => ({
-          id: crypto.randomUUID(),
-          user_id: userId,
-          item_id: item.item_id,
-          title: item.title,
-          description: item.description,
-          completed: Math.random() > 0.5,
-          completed_at: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }))
-      }
-      
-      return newData
+      console.log('No ethics data found')
+      return []
     }
 
     return data
   } catch (error) {
-    console.error('Unexpected error in getEthicsChecklist:', error)
-    // Return mock data as fallback
-    return defaultEthicsItems.map(item => ({
-      id: crypto.randomUUID(),
-      user_id: userId,
-      item_id: item.item_id,
-      title: item.title,
-      description: item.description,
-      completed: Math.random() > 0.5,
-      completed_at: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }))
+    console.error('Error in getEthicsChecklist:', error)
+    throw error
   }
 }
 
@@ -479,75 +379,18 @@ export async function getOnboardingTasks(userId: string): Promise<OnboardingTask
 
     if (error) {
       console.error('Error fetching onboarding tasks:', error)
-      // Return mock data for development
-      return defaultOnboardingTasks.flatMap(day =>
-        day.tasks.map(task => ({
-          id: crypto.randomUUID(),
-          user_id: userId,
-          day_number: day.day,
-          task_id: task.task_id,
-          title: task.title,
-          description: task.description,
-          time_estimate: task.time_estimate,
-          completed: day.day < 3 ? true : day.day === 3 ? Math.random() > 0.5 : false,
-          completed_at: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }))
-      )
+      throw error
     }
 
-    // Initialize if no data exists
     if (!data || data.length === 0) {
-      await initializeComplianceData(userId)
-      const { data: newData, error: newError } = await supabase
-        .from('onboarding_tasks')
-        .select('*')
-        .eq('user_id', userId)
-        .order('day_number')
-        .order('task_id')
-      
-      if (newError || !newData) {
-        // Return mock data if initialization failed
-        return defaultOnboardingTasks.flatMap(day =>
-          day.tasks.map(task => ({
-            id: crypto.randomUUID(),
-            user_id: userId,
-            day_number: day.day,
-            task_id: task.task_id,
-            title: task.title,
-            description: task.description,
-            time_estimate: task.time_estimate,
-            completed: day.day < 3 ? true : day.day === 3 ? Math.random() > 0.5 : false,
-            completed_at: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }))
-        )
-      }
-      
-      return newData
+      console.log('No onboarding data found')
+      return []
     }
 
     return data
   } catch (error) {
-    console.error('Unexpected error in getOnboardingTasks:', error)
-    // Return mock data as fallback
-    return defaultOnboardingTasks.flatMap(day =>
-      day.tasks.map(task => ({
-        id: crypto.randomUUID(),
-        user_id: userId,
-        day_number: day.day,
-        task_id: task.task_id,
-        title: task.title,
-        description: task.description,
-        time_estimate: task.time_estimate,
-        completed: day.day < 3 ? true : day.day === 3 ? Math.random() > 0.5 : false,
-        completed_at: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }))
-    )
+    console.error('Error in getOnboardingTasks:', error)
+    throw error
   }
 }
 

@@ -34,9 +34,10 @@ export default function CompliancePage() {
 
     try {
       const data = await getEthicsChecklist(userProfile.id)
-      setEthicsItems(data)
+      setEthicsItems(data || [])
     } catch (error) {
       console.error('Error loading ethics checklist:', error)
+      setEthicsItems([])
       toast({
         title: 'Error loading checklist',
         description: 'Please try refreshing the page',

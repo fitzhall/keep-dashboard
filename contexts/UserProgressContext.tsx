@@ -285,7 +285,10 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   // Load progress from database
   useEffect(() => {
     async function loadProgress() {
-      if (!dbUserId) return
+      if (!dbUserId) {
+        setIsLoading(false)
+        return
+      }
 
       try {
         // Load course progress
@@ -370,6 +373,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         }
       } catch (error) {
         console.error('Error loading progress:', error)
+        // Don't crash, just set to default state
+        dispatch({ type: 'LOAD_PROGRESS', progress: initialProgress })
       } finally {
         setIsLoading(false)
       }
