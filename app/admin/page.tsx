@@ -14,6 +14,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { InviteUserDialog } from '@/components/InviteUserDialog'
 import { 
   Users, 
   FileText,
@@ -121,6 +123,8 @@ const licensedAttorneys = [
 ]
 
 export default function AdminPage() {
+  const [showInviteDialog, setShowInviteDialog] = useState(false)
+  
   return (
     <>
       <motion.div 
@@ -184,7 +188,10 @@ export default function AdminPage() {
                 <span>Manage Licenses</span>
                 <Badge variant="secondary">10 active</Badge>
               </Button>
-              <Button className="w-full justify-between">
+              <Button 
+                className="w-full justify-between"
+                onClick={() => setShowInviteDialog(true)}
+              >
                 <span className="flex items-center gap-2">
                   <UserPlus className="h-4 w-4" />
                   Invite New User
@@ -542,6 +549,10 @@ export default function AdminPage() {
           </TabsContent>
         </Tabs>
       </motion.div>
+      <InviteUserDialog 
+        open={showInviteDialog} 
+        onOpenChange={setShowInviteDialog} 
+      />
     </>
   )
 }

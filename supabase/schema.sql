@@ -101,6 +101,19 @@ CREATE TABLE IF NOT EXISTS public.notifications (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- User invitations
+CREATE TABLE IF NOT EXISTS public.user_invitations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT NOT NULL,
+  role TEXT DEFAULT 'attorney' CHECK (role IN ('admin', 'attorney', 'paralegal')),
+  invited_by UUID REFERENCES public.user_profiles(id),
+  token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+  accepted BOOLEAN DEFAULT FALSE,
+  accepted_at TIMESTAMPTZ,
+  expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '7 days',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_course_progress_user_id ON public.course_progress(user_id);
 CREATE INDEX idx_sop_progress_user_id ON public.sop_progress(user_id);
@@ -112,6 +125,8 @@ CREATE INDEX idx_support_tickets_status ON public.support_tickets(status);
 CREATE INDEX idx_notifications_user_id ON public.notifications(user_id);
 CREATE INDEX idx_notifications_created_at ON public.notifications(created_at DESC);
 CREATE INDEX idx_notifications_is_read ON public.notifications(is_read);
+CREATE INDEX idx_user_invitations_email ON public.user_invitations(email);
+CREATE INDEX idx_user_invitations_token ON public.user_invitations(token);
 
 -- Row Level Security (RLS) Policies
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
@@ -122,6 +137,7 @@ ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.support_tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.compliance_scores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_invitations ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies: Users can only access their own data
 CREATE POLICY "Users can view own profile" ON public.user_profiles
@@ -147,6 +163,18 @@ CREATE POLICY "Users can view own compliance" ON public.compliance_scores
 
 CREATE POLICY "Users can view own notifications" ON public.notifications
   FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
+
+CREATE POLICY "Admins can create invitations" ON public.user_invitations
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.user_profiles 
+      WHERE auth0_id = auth.uid()::text 
+      AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Anyone can view invitations by token" ON public.user_invitations
+  FOR SELECT USING (true);
 
 -- Function to generate ticket numbers
 CREATE OR REPLACE FUNCTION generate_ticket_number()
