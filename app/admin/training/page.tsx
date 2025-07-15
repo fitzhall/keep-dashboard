@@ -93,13 +93,23 @@ export default function AdminTrainingPage() {
   const { toast } = useToast()
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string
+    description: string
+    video_url: string
+    video_type: 'youtube' | 'vimeo' | 'loom' | 'other'
+    duration_minutes: string
+    category: 'cle' | 'keep'
+    module_id: string
+    course_id: string
+    order_index: string
+  }>({
     title: '',
     description: '',
     video_url: '',
-    video_type: 'youtube' as const,
+    video_type: 'youtube',
     duration_minutes: '',
-    category: 'cle' as const,
+    category: 'cle',
     module_id: '',
     course_id: '',
     order_index: '0'
