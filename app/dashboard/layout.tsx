@@ -1,5 +1,5 @@
-import MinimalLayout from '@/components/MinimalLayout'
+import DashboardLayout from '@/components/DashboardLayout'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <MinimalLayout>{children}</MinimalLayout>
+  return <DashboardLayout>{children}</DashboardLayout>
 }
