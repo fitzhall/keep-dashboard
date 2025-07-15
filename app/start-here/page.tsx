@@ -106,8 +106,8 @@ const wizardOptions = [
     title: 'Audit Preparation',
     description: 'Prepare for compliance audits and reviews',
     icon: Shield,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100',
     steps: [
       {
         title: 'Document Review',
