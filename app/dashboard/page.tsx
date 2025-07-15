@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { 
   GraduationCap, 
@@ -15,14 +14,16 @@ import {
   Award,
   ArrowRight,
   Clock,
-  Users,
-  Briefcase,
   CheckCircle2,
   AlertCircle,
   Calendar,
-  Building,
   FileCheck,
-  Info
+  Info,
+  Download,
+  PlayCircle,
+  FileDown,
+  BookMarked,
+  Scale
 } from 'lucide-react'
 import Link from 'next/link'
 import { useUserProgress } from '@/contexts/UserProgressContext'
@@ -34,16 +35,8 @@ export default function DashboardPage() {
   // Calculate metrics
   const completedCourses = progress.courses.filter(c => c.status === 'completed').length
   const totalCredits = completedCourses * 2.5
-  const overallProgress = (completedCourses / progress.courses.length) * 100
-  const currentPhase = progress.sopPhases.find(p => p.status === 'in-progress')?.phase || 1
-  const completedPhases = progress.sopPhases.filter(p => p.status === 'completed').length
-
-  // Mock client data for demo
-  const activeClients = [
-    { id: 1, name: 'Johnson Family Trust', phase: 3, status: 'active', lastActivity: '2 hours ago' },
-    { id: 2, name: 'Smith Estate', phase: 1, status: 'pending', lastActivity: '1 day ago' },
-    { id: 3, name: 'Davis Bitcoin Holdings', phase: 5, status: 'active', lastActivity: '3 days ago' }
-  ]
+  const certificationProgress = (completedCourses / progress.courses.length) * 100
+  const templatesDownloaded = progress.templatesDownloaded.length
 
   // Practice readiness components
   const readinessItems = [
@@ -70,15 +63,22 @@ export default function DashboardPage() {
     }
   ]
 
+  // Recent templates
+  const popularTemplates = [
+    { id: 1, name: 'Bitcoin Trust Amendment', category: 'Trust Documents', downloads: 234 },
+    { id: 2, name: 'Multi-Sig Letter of Instruction', category: 'Key Management', downloads: 189 },
+    { id: 3, name: 'Digital Asset Power of Attorney', category: 'Legal Forms', downloads: 156 }
+  ]
+
   return (
     <div className="space-y-6">
       {/* Professional Header */}
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">
-          Welcome back, {userProfile?.name || 'Attorney'}
+          KEEP Protocol Training Center
         </h1>
         <p className="text-gray-600 mt-1">
-          {userProfile?.firm || 'Your Firm'} • KEEP Protocol Licensed Attorney
+          {userProfile?.name || 'Attorney'} • {userProfile?.firm || 'Your Firm'}
         </p>
       </div>
 
@@ -86,27 +86,17 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">Active Clients</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Certification Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold">{activeClients.length}</div>
-            <p className="text-xs text-gray-500 mt-1">Across {completedPhases + 1} phases</p>
+            <div className="text-2xl font-semibold">{Math.round(certificationProgress)}%</div>
+            <Progress value={certificationProgress} className="mt-2 h-1" />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">SOP Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-semibold">Phase {currentPhase}/10</div>
-            <Progress value={currentPhase * 10} className="mt-2 h-1" />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">CLE Credits</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">CLE Credits Earned</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold">{totalCredits}</div>
@@ -116,117 +106,129 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">Compliance Score</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Templates Downloaded</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold">{progress.complianceScore}%</div>
-            <p className="text-xs text-gray-500 mt-1">Last audit: 7 days ago</p>
+            <div className="text-2xl font-semibold">{templatesDownloaded}</div>
+            <p className="text-xs text-gray-500 mt-1">of 25 available</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">Support Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold text-green-600">Active</div>
+            <p className="text-xs text-gray-500 mt-1">48hr hotline available</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content Area */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left Column - SOP & Clients */}
+        {/* Left Column - Training & Templates */}
         <div className="lg:col-span-2 space-y-6">
-          {/* SOP Phase Tracker */}
+          {/* Training Progress */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>10-Phase SOP Progress</CardTitle>
-                  <CardDescription>Track your implementation across all clients</CardDescription>
+                  <CardTitle>Your Training Journey</CardTitle>
+                  <CardDescription>Complete all modules to become KEEP certified</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/sop">
-                    View Full Guide <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link href="/training">
+                    View All Courses <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {/* Phase Progress Bar */}
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Overall Phase Completion</span>
-                    <span className="font-medium">{completedPhases} of 10 phases</span>
+                {/* Current Course Progress */}
+                <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <PlayCircle className="h-5 w-5 text-blue-600" />
+                      <div>
+                        <h4 className="font-medium">Current: Technical Implementation</h4>
+                        <p className="text-sm text-gray-600">Module 2 of 4 • 3 CLE Credits</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-blue-100 text-blue-700">In Progress</Badge>
                   </div>
-                  <div className="flex gap-1">
-                    {progress.sopPhases.map((phase) => (
-                      <div
-                        key={phase.phase}
-                        className={cn(
-                          "h-2 flex-1 rounded-sm",
-                          phase.status === 'completed' && "bg-blue-600",
-                          phase.status === 'in-progress' && "bg-blue-400",
-                          phase.status === 'not-started' && "bg-gray-200"
-                        )}
-                      />
-                    ))}
+                  <Progress value={65} className="h-2 mb-2" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">65% Complete</span>
+                    <Button size="sm" asChild>
+                      <Link href="/training">Continue Learning</Link>
+                    </Button>
                   </div>
                 </div>
 
-                {/* Current Phase Details */}
-                <Alert className="border-blue-200 bg-blue-50">
-                  <Info className="h-4 w-4 text-blue-600" />
-                  <AlertDescription className="text-sm">
-                    <strong>Current Phase {currentPhase}:</strong> 
-                    {currentPhase === 1 && " Initial Consultation & Intake"}
-                    {currentPhase === 2 && " Asset Discovery & Documentation"}
-                    {currentPhase === 3 && " Legal Structure Design"}
-                    {currentPhase === 4 && " Technical Implementation"}
-                    {currentPhase === 5 && " Beneficiary Setup"}
-                  </AlertDescription>
-                </Alert>
+                {/* Next Modules Preview */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Up Next:</p>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                    Module 3: Compliance & Ethics (2 CLE Credits)
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                    Module 4: Advanced Trust Structures (4 CLE Credits)
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Active Clients */}
+          {/* Template Library Quick Access */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Active Client Matters</CardTitle>
-                  <CardDescription>Bitcoin estate planning engagements</CardDescription>
+                  <CardTitle>Popular Templates</CardTitle>
+                  <CardDescription>Most downloaded Bitcoin estate planning documents</CardDescription>
                 </div>
-                <Button size="sm" variant="outline">
-                  <Users className="mr-2 h-4 w-4" />
-                  New Client
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/templates">
+                    Browse All <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {activeClients.map((client) => (
+                {popularTemplates.map((template) => (
                   <div
-                    key={client.id}
+                    key={template.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "h-2 w-2 rounded-full",
-                        client.status === 'active' ? "bg-green-500" : "bg-yellow-500"
-                      )} />
+                      <FileText className="h-5 w-5 text-gray-400" />
                       <div>
-                        <p className="font-medium text-sm">{client.name}</p>
-                        <p className="text-xs text-gray-500">
-                          Phase {client.phase} • Last activity: {client.lastActivity}
-                        </p>
+                        <p className="font-medium text-sm">{template.name}</p>
+                        <p className="text-xs text-gray-500">{template.category}</p>
                       </div>
                     </div>
                     <Button variant="ghost" size="sm">
-                      View <ArrowRight className="ml-1 h-3 w-3" />
+                      <Download className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
               </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>New:</strong> Updated trust templates now include RUFADAA language for all 50 states.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Column - Practice Readiness & Actions */}
+        {/* Right Column - Practice Readiness & Resources */}
         <div className="space-y-6">
           {/* Practice Readiness Assessment */}
           <Card>
@@ -259,28 +261,31 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-4" variant="outline" size="sm" asChild>
-                <Link href="/training">Continue Training</Link>
-              </Button>
             </CardContent>
           </Card>
 
-          {/* Quick Actions */}
+          {/* Quick Resources */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Quick Actions</CardTitle>
+              <CardTitle className="text-base">Quick Resources</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button variant="outline" className="w-full justify-start" size="sm" asChild>
-                <Link href="/templates">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Download Templates
+                <Link href="/sop">
+                  <BookMarked className="mr-2 h-4 w-4" />
+                  10-Phase SOP Guide
                 </Link>
               </Button>
               <Button variant="outline" className="w-full justify-start" size="sm" asChild>
                 <Link href="/compliance">
                   <Shield className="mr-2 h-4 w-4" />
-                  Compliance Center
+                  Ethics Checklist
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full justify-start" size="sm" asChild>
+                <Link href="/cle">
+                  <Award className="mr-2 h-4 w-4" />
+                  CLE Certificates
                 </Link>
               </Button>
               <Button variant="outline" className="w-full justify-start" size="sm" asChild>
@@ -292,32 +297,32 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Upcoming Tasks */}
+          {/* Compliance Reminders */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Upcoming Tasks</CardTitle>
+              <CardTitle className="text-base">Compliance Reminders</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Scale className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium">Complete Module 2 Quiz</p>
-                    <p className="text-xs text-gray-500">Due in 2 days</p>
+                    <p className="font-medium">State Bar Requirements</p>
+                    <p className="text-xs text-gray-500">Review your jurisdiction's crypto regulations</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 text-sm">
                   <FileCheck className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium">Ethics Checklist Review</p>
-                    <p className="text-xs text-gray-500">Due in 5 days</p>
+                    <p className="font-medium">Malpractice Coverage</p>
+                    <p className="text-xs text-gray-500">Ensure your policy covers digital assets</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 text-sm">
-                  <Building className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="font-medium">Monthly Compliance Audit</p>
-                    <p className="text-xs text-gray-500">Due in 1 week</p>
+                    <p className="font-medium">Annual CLE Requirements</p>
+                    <p className="text-xs text-gray-500">Track your ethics and tech credits</p>
                   </div>
                 </div>
               </div>
@@ -326,12 +331,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Bottom Actions Bar */}
+      {/* Bottom Support Bar */}
       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
         <div className="flex items-center gap-2">
           <AlertCircle className="h-4 w-4 text-blue-600" />
           <p className="text-sm text-gray-600">
-            Need help? Access 48-hour expert support through the KEEP hotline.
+            Questions about Bitcoin estate planning? Our expert support team is available within 48 hours.
           </p>
         </div>
         <Button variant="outline" size="sm" asChild>
