@@ -5,15 +5,20 @@ import { NextResponse } from 'next/server'
 
 export const auth0 = {
   getSession: async () => {
-    // Return mock session for development
-    return {
-      user: {
-        sub: 'auth0|mock-user-id',
-        email: 'user@example.com',
-        name: 'Test User',
-        picture: undefined,
-        nickname: 'testuser'
+    try {
+      // Return mock session for development
+      return {
+        user: {
+          sub: 'auth0|mock-user-id',
+          email: 'user@example.com',
+          name: 'Test User',
+          picture: undefined,
+          nickname: 'testuser'
+        }
       }
+    } catch (error) {
+      console.error('Error in getSession:', error)
+      return null
     }
   },
   getAccessToken: async () => {

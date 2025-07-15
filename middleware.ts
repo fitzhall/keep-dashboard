@@ -2,8 +2,15 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Since we're using mock auth, just pass through all requests
-  return NextResponse.next()
+  try {
+    // Import auth0 dynamically to handle missing env vars
+    const { auth0 } = await import('./lib/auth0')
+    return await auth0.middleware(request)
+  } catch (error) {
+    console.error('Auth0 middleware error:', error)
+    // If Auth0 is not configured, allow the request to proceed
+    return NextResponse.next()
+  }
 }
 
 export const config = {
