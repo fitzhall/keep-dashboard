@@ -57,14 +57,29 @@ export function InviteUserDialog({ open, onOpenChange }: InviteUserDialogProps) 
         invitedBy: userProfile.id
       })
       
-      if (result.success) {
+      if (result.success && result.invitation) {
+        // Create a longer-lasting toast with the invite link
         toast({
-          title: 'Invitation created',
-          description: `Invitation link: ${result.inviteLink}`,
+          title: 'Invitation created successfully!',
+          description: (
+            <div className="space-y-2">
+              <p>Copy this link to send via ConvertKit:</p>
+              <code className="block p-2 bg-muted rounded text-xs break-all">
+                {result.inviteLink}
+              </code>
+              <p className="text-xs">Link expires in 7 days</p>
+            </div>
+          ),
+          duration: 10000, // Show for 10 seconds
         })
         
-        // In production, you would send an email here
-        // For now, you can copy the invite link from the toast
+        // Log to console for easy copying
+        console.log('Invitation link:', result.inviteLink)
+        
+        // For ConvertKit integration:
+        // 1. Create a custom field in ConvertKit for "invite_link"
+        // 2. Use ConvertKit API to add subscriber with the invite link
+        // 3. Set up an automation to send the invite email
         
         // Reset form
         setEmail('')

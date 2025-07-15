@@ -262,6 +262,41 @@ export interface Database {
           created_at?: string
         }
       }
+      user_invitations: {
+        Row: {
+          id: string
+          email: string
+          role: 'admin' | 'attorney' | 'paralegal'
+          invited_by: string | null
+          token: string
+          accepted: boolean
+          accepted_at: string | null
+          expires_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          role?: 'admin' | 'attorney' | 'paralegal'
+          invited_by?: string | null
+          token?: string
+          accepted?: boolean
+          accepted_at?: string | null
+          expires_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          role?: 'admin' | 'attorney' | 'paralegal'
+          invited_by?: string | null
+          token?: string
+          accepted?: boolean
+          accepted_at?: string | null
+          expires_at?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
