@@ -246,7 +246,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   const { user } = useUser()
   const [progress, dispatch] = useReducer(progressReducer, initialProgress)
   const [isLoading, setIsLoading] = useState(true)
-  const [userProfile, setUserProfile] = useState(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [dbUserId, setDbUserId] = useState<string | null>(null)
 
   // Initialize user profile in database
