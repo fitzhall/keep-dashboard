@@ -125,13 +125,14 @@ export async function getLicensedAttorneys(): Promise<LicensedAttorney[]> {
       const daysSinceCreated = Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24))
       if (daysSinceCreated <= 14) status = 'Trial Period'
 
+      // Calculate cases this month (template downloads)
+      const casesThisMonth = user.template_downloads?.length || 0
+
       // Determine license type based on role
       let licenseType: LicensedAttorney['licenseType'] = 'Standard'
       if (user.role === 'admin') licenseType = 'Enterprise'
       else if (status === 'Trial Period') licenseType = 'Trial'
-
-      // Calculate cases this month (template downloads)
-      const casesThisMonth = user.template_downloads?.length || 0
+      else if (user.role === 'attorney' && casesThisMonth > 10) licenseType = 'Premium'
 
       // Calculate monthly revenue (mock calculation)
       let monthlyRevenue = 0
