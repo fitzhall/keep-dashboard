@@ -1,15 +1,15 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { 
   GraduationCap, 
   FileText, 
   HeadphonesIcon,
-  TrendingUp,
   Shield,
   BookOpen,
   Award,
@@ -17,14 +17,12 @@ import {
   Clock,
   Users,
   Briefcase,
-  Target,
-  Calendar,
   CheckCircle2,
   AlertCircle,
-  Zap,
-  MessageSquare,
-  Download,
-  PlayCircle
+  Calendar,
+  Building,
+  FileCheck,
+  Info
 } from 'lucide-react'
 import Link from 'next/link'
 import { useUserProgress } from '@/contexts/UserProgressContext'
@@ -38,353 +36,306 @@ export default function DashboardPage() {
   const totalCredits = completedCourses * 2.5
   const overallProgress = (completedCourses / progress.courses.length) * 100
   const currentPhase = progress.sopPhases.find(p => p.status === 'in-progress')?.phase || 1
+  const completedPhases = progress.sopPhases.filter(p => p.status === 'completed').length
 
-  // Mock data for demo
-  const upcomingTasks = [
-    { id: 1, title: 'Complete Module 2: Technical Implementation', type: 'training', dueIn: '2 days' },
-    { id: 2, title: 'Review Multi-sig Setup Documentation', type: 'reading', dueIn: '3 days' },
-    { id: 3, title: 'Schedule Mock Client Session', type: 'practice', dueIn: '1 week' }
+  // Mock client data for demo
+  const activeClients = [
+    { id: 1, name: 'Johnson Family Trust', phase: 3, status: 'active', lastActivity: '2 hours ago' },
+    { id: 2, name: 'Smith Estate', phase: 1, status: 'pending', lastActivity: '1 day ago' },
+    { id: 3, name: 'Davis Bitcoin Holdings', phase: 5, status: 'active', lastActivity: '3 days ago' }
   ]
 
-  const recentClients = [
-    { id: 1, name: 'Johnson Family Trust', phase: 3, lastActivity: '2 hours ago' },
-    { id: 2, name: 'Smith Estate', phase: 1, lastActivity: '1 day ago' }
+  // Practice readiness components
+  const readinessItems = [
+    { 
+      title: 'Foundational Knowledge',
+      status: 'complete',
+      description: 'Core Bitcoin estate planning principles'
+    },
+    { 
+      title: 'Technical Implementation',
+      status: 'in-progress',
+      progress: 65,
+      description: 'Multi-sig and custody solutions'
+    },
+    { 
+      title: 'Compliance & Ethics',
+      status: 'pending',
+      description: 'State regulations and ethics requirements'
+    },
+    { 
+      title: 'Advanced Structures',
+      status: 'pending',
+      description: 'Complex trust and tax strategies'
+    }
   ]
 
   return (
-    <div className="space-y-8">
-      {/* Personalized Welcome with Key Metrics */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-purple-700 p-8 text-white">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold mb-2">
-            Welcome back, {userProfile?.name?.split(' ')[0] || 'Attorney'}! 👋
-          </h1>
-          <p className="text-blue-100 mb-6 text-lg">
-            You're making great progress on your Bitcoin estate planning certification.
-          </p>
-          
-          {/* Quick Stats in Welcome Banner */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/20 backdrop-blur rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm">Certification Progress</p>
-                  <p className="text-2xl font-bold">{Math.round(overallProgress)}%</p>
-                </div>
-                <GraduationCap className="h-8 w-8 text-blue-200" />
-              </div>
-            </div>
-            <div className="bg-white/20 backdrop-blur rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm">CLE Credits</p>
-                  <p className="text-2xl font-bold">{totalCredits}/11.5</p>
-                </div>
-                <Award className="h-8 w-8 text-blue-200" />
-              </div>
-            </div>
-            <div className="bg-white/20 backdrop-blur rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100 text-sm">Current SOP Phase</p>
-                  <p className="text-2xl font-bold">Phase {currentPhase}</p>
-                </div>
-                <Target className="h-8 w-8 text-blue-200" />
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Background decoration */}
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+    <div className="space-y-6">
+      {/* Professional Header */}
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Welcome back, {userProfile?.name || 'Attorney'}
+        </h1>
+        <p className="text-gray-600 mt-1">
+          {userProfile?.firm || 'Your Firm'} • KEEP Protocol Licensed Attorney
+        </p>
       </div>
 
-      {/* Main Content Area with Tabs */}
-      <Tabs defaultValue="today" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="today">Today's Focus</TabsTrigger>
-          <TabsTrigger value="progress">My Progress</TabsTrigger>
-          <TabsTrigger value="clients">Clients</TabsTrigger>
-        </TabsList>
+      {/* Key Metrics Row */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">Active Clients</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">{activeClients.length}</div>
+            <p className="text-xs text-gray-500 mt-1">Across {completedPhases + 1} phases</p>
+          </CardContent>
+        </Card>
 
-        {/* Today's Focus Tab */}
-        <TabsContent value="today" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Priority Actions */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="border-2 border-blue-200 bg-blue-50/50">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-blue-600" />
-                      Your Next Steps
-                    </CardTitle>
-                    <Badge variant="outline" className="bg-blue-100">
-                      {upcomingTasks.length} tasks
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {upcomingTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          "h-10 w-10 rounded-full flex items-center justify-center",
-                          task.type === 'training' && "bg-purple-100",
-                          task.type === 'reading' && "bg-green-100",
-                          task.type === 'practice' && "bg-orange-100"
-                        )}>
-                          {task.type === 'training' && <PlayCircle className="h-5 w-5 text-purple-600" />}
-                          {task.type === 'reading' && <BookOpen className="h-5 w-5 text-green-600" />}
-                          {task.type === 'practice' && <Users className="h-5 w-5 text-orange-600" />}
-                        </div>
-                        <div>
-                          <p className="font-medium">{task.title}</p>
-                          <p className="text-sm text-muted-foreground">Due in {task.dueIn}</p>
-                        </div>
-                      </div>
-                      <Button size="sm" variant="ghost">
-                        Start <ArrowRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">SOP Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">Phase {currentPhase}/10</div>
+            <Progress value={currentPhase * 10} className="mt-2 h-1" />
+          </CardContent>
+        </Card>
 
-              {/* Quick Actions Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                        <BookOpen className="h-6 w-6 text-purple-600" />
-                      </div>
-                      <h3 className="font-semibold">Continue Training</h3>
-                      <p className="text-sm text-muted-foreground">Pick up where you left off</p>
-                      <Button asChild className="w-full">
-                        <Link href="/training">Resume</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">CLE Credits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">{totalCredits}</div>
+            <p className="text-xs text-gray-500 mt-1">of 11.5 available</p>
+          </CardContent>
+        </Card>
 
-                <Card className="hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center text-center space-y-3">
-                      <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <FileText className="h-6 w-6 text-green-600" />
-                      </div>
-                      <h3 className="font-semibold">Client Templates</h3>
-                      <p className="text-sm text-muted-foreground">Download what you need</p>
-                      <Button asChild variant="outline" className="w-full">
-                        <Link href="/templates">Browse</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">Compliance Score</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">{progress.complianceScore}%</div>
+            <p className="text-xs text-gray-500 mt-1">Last audit: 7 days ago</p>
+          </CardContent>
+        </Card>
+      </div>
 
-            {/* Right Sidebar */}
-            <div className="space-y-6">
-              {/* Practice Readiness Mini */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Practice Readiness
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Overall Readiness</span>
-                        <span className="font-medium">65%</span>
-                      </div>
-                      <Progress value={65} className="h-2" />
-                    </div>
-                    <div className="space-y-2 pt-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <span>Foundational Knowledge</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="h-4 w-4 text-yellow-600" />
-                        <span>Technical Implementation</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <div className="h-4 w-4 rounded-full border-2" />
-                        <span>Compliance & Ethics</span>
-                      </div>
-                    </div>
-                    <Button asChild size="sm" className="w-full mt-3">
-                      <Link href="/training">View Full Assessment</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Support Card */}
-              <Card className="border-orange-200 bg-orange-50/50">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
-                      <MessageSquare className="h-6 w-6 text-orange-600" />
-                    </div>
-                    <h3 className="font-semibold">Need Help?</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Expert support is just a click away
-                    </p>
-                    <Button asChild variant="outline" size="sm" className="w-full">
-                      <Link href="/support">Get Support</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* Progress Tab */}
-        <TabsContent value="progress" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Certification Journey */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Certification Journey</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {progress.courses.map((course, index) => (
-                    <div key={course.id} className="flex items-center gap-4">
-                      <div className={cn(
-                        "h-10 w-10 rounded-full flex items-center justify-center font-semibold",
-                        course.status === 'completed' ? "bg-green-100 text-green-700" :
-                        course.status === 'in-progress' ? "bg-blue-100 text-blue-700" :
-                        "bg-gray-100 text-gray-400"
-                      )}>
-                        {course.status === 'completed' ? <CheckCircle2 className="h-5 w-5" /> : index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">Module {index + 1}</p>
-                        <Progress 
-                          value={course.progress} 
-                          className="h-2 mt-1"
-                        />
-                      </div>
-                      <Badge variant={course.status === 'completed' ? 'default' : 'outline'}>
-                        {course.status === 'completed' ? '2.5 Credits' : 'Pending'}
-                      </Badge>
-                    </div>
-                  ))}
+      {/* Main Content Area */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Left Column - SOP & Clients */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* SOP Phase Tracker */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>10-Phase SOP Progress</CardTitle>
+                  <CardDescription>Track your implementation across all clients</CardDescription>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* SOP Implementation Progress */}
-            <Card>
-              <CardHeader>
-                <CardTitle>SOP Implementation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-5 gap-2">
-                    {progress.sopPhases.slice(0, 5).map((phase) => (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/sop">
+                    View Full Guide <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {/* Phase Progress Bar */}
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600">Overall Phase Completion</span>
+                    <span className="font-medium">{completedPhases} of 10 phases</span>
+                  </div>
+                  <div className="flex gap-1">
+                    {progress.sopPhases.map((phase) => (
                       <div
                         key={phase.phase}
                         className={cn(
-                          "h-2 rounded-full",
-                          phase.status === 'completed' ? "bg-green-500" :
-                          phase.status === 'in-progress' ? "bg-blue-500" :
-                          "bg-gray-200"
+                          "h-2 flex-1 rounded-sm",
+                          phase.status === 'completed' && "bg-blue-600",
+                          phase.status === 'in-progress' && "bg-blue-400",
+                          phase.status === 'not-started' && "bg-gray-200"
                         )}
                       />
                     ))}
                   </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">Phase {currentPhase} of 10</p>
-                    <p className="text-sm text-muted-foreground">Currently Active</p>
-                  </div>
-                  <Button asChild className="w-full">
-                    <Link href="/sop">View SOP Guide</Link>
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
 
-        {/* Clients Tab */}
-        <TabsContent value="clients" className="space-y-6">
+                {/* Current Phase Details */}
+                <Alert className="border-blue-200 bg-blue-50">
+                  <Info className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-sm">
+                    <strong>Current Phase {currentPhase}:</strong> 
+                    {currentPhase === 1 && " Initial Consultation & Intake"}
+                    {currentPhase === 2 && " Asset Discovery & Documentation"}
+                    {currentPhase === 3 && " Legal Structure Design"}
+                    {currentPhase === 4 && " Technical Implementation"}
+                    {currentPhase === 5 && " Beneficiary Setup"}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Active Clients */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Active Client Engagements</CardTitle>
-                <Button size="sm">
+                <div>
+                  <CardTitle>Active Client Matters</CardTitle>
+                  <CardDescription>Bitcoin estate planning engagements</CardDescription>
+                </div>
+                <Button size="sm" variant="outline">
                   <Users className="mr-2 h-4 w-4" />
                   New Client
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentClients.map((client) => (
+              <div className="space-y-3">
+                {activeClients.map((client) => (
                   <div
                     key={client.id}
-                    className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Briefcase className="h-5 w-5 text-blue-600" />
-                      </div>
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "h-2 w-2 rounded-full",
+                        client.status === 'active' ? "bg-green-500" : "bg-yellow-500"
+                      )} />
                       <div>
-                        <p className="font-medium">{client.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-medium text-sm">{client.name}</p>
+                        <p className="text-xs text-gray-500">
                           Phase {client.phase} • Last activity: {client.lastActivity}
                         </p>
                       </div>
                     </div>
                     <Button variant="ghost" size="sm">
-                      View Details <ArrowRight className="ml-1 h-4 w-4" />
+                      View <ArrowRight className="ml-1 h-3 w-3" />
                     </Button>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
 
-      {/* Resource Quick Access */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
-          <Link href="/templates">
-            <Download className="h-5 w-5" />
-            <span className="text-sm">Templates</span>
-          </Link>
-        </Button>
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
-          <Link href="/cle">
-            <Award className="h-5 w-5" />
-            <span className="text-sm">CLE Courses</span>
-          </Link>
-        </Button>
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
-          <Link href="/hotline">
-            <HeadphonesIcon className="h-5 w-5" />
-            <span className="text-sm">Hotline</span>
-          </Link>
-        </Button>
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2" asChild>
-          <Link href="/support">
-            <MessageSquare className="h-5 w-5" />
-            <span className="text-sm">Support</span>
-          </Link>
+        {/* Right Column - Practice Readiness & Actions */}
+        <div className="space-y-6">
+          {/* Practice Readiness Assessment */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Practice Readiness Assessment</CardTitle>
+              <CardDescription>Your Bitcoin estate planning competency</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {readinessItems.map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {item.status === 'complete' && (
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        )}
+                        {item.status === 'in-progress' && (
+                          <Clock className="h-4 w-4 text-blue-600" />
+                        )}
+                        {item.status === 'pending' && (
+                          <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
+                        )}
+                        <span className="text-sm font-medium">{item.title}</span>
+                      </div>
+                    </div>
+                    {item.progress && (
+                      <Progress value={item.progress} className="h-1.5" />
+                    )}
+                    <p className="text-xs text-gray-500 ml-6">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+              <Button className="w-full mt-4" variant="outline" size="sm" asChild>
+                <Link href="/training">Continue Training</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="outline" className="w-full justify-start" size="sm" asChild>
+                <Link href="/templates">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Download Templates
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full justify-start" size="sm" asChild>
+                <Link href="/compliance">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Compliance Center
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full justify-start" size="sm" asChild>
+                <Link href="/hotline">
+                  <HeadphonesIcon className="mr-2 h-4 w-4" />
+                  48hr Support Hotline
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Upcoming Tasks */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Upcoming Tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 text-sm">
+                  <Calendar className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Complete Module 2 Quiz</p>
+                    <p className="text-xs text-gray-500">Due in 2 days</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 text-sm">
+                  <FileCheck className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Ethics Checklist Review</p>
+                    <p className="text-xs text-gray-500">Due in 5 days</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 text-sm">
+                  <Building className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Monthly Compliance Audit</p>
+                    <p className="text-xs text-gray-500">Due in 1 week</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Bottom Actions Bar */}
+      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <p className="text-sm text-gray-600">
+            Need help? Access 48-hour expert support through the KEEP hotline.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/support">Get Support</Link>
         </Button>
       </div>
     </div>
