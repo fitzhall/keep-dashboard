@@ -225,3 +225,47 @@ CREATE TRIGGER update_sop_progress_updated_at BEFORE UPDATE ON public.sop_progre
 
 CREATE TRIGGER update_support_tickets_updated_at BEFORE UPDATE ON public.support_tickets
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Training videos table
+CREATE TABLE IF NOT EXISTS public.training_videos (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  video_url TEXT NOT NULL,
+  video_type TEXT CHECK (video_type IN ('youtube', 'vimeo', 'loom', 'other')),
+  duration_minutes INTEGER,
+  category TEXT NOT NULL CHECK (category IN ('cle', 'keep')),
+  module_id TEXT, -- For KEEP modules (keep-101, sop-mastery, etc.)
+  course_id INTEGER, -- For CLE courses (1-4)
+  order_index INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_by UUID REFERENCES public.user_profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create index for faster queries
+CREATE INDEX idx_training_videos_category ON public.training_videos(category);
+CREATE INDEX idx_training_videos_module ON public.training_videos(module_id);
+CREATE INDEX idx_training_videos_course ON public.training_videos(course_id);
+
+-- RLS Policies for training videos
+ALTER TABLE public.training_videos ENABLE ROW LEVEL SECURITY;
+
+-- Everyone can view active videos
+CREATE POLICY "training_videos_select" ON public.training_videos
+  FOR SELECT USING (is_active = true);
+
+-- Only admins can insert/update/delete videos
+CREATE POLICY "training_videos_admin_all" ON public.training_videos
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.user_profiles
+      WHERE id = auth.uid()::uuid
+      AND role = 'admin'
+    )
+  );
+
+-- Trigger for training videos
+CREATE TRIGGER update_training_videos_updated_at BEFORE UPDATE ON public.training_videos
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

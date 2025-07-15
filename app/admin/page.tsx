@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { InviteUserDialog } from '@/components/InviteUserDialog'
 import { 
   Users, 
@@ -32,7 +33,8 @@ import {
   MapPin,
   Calendar,
   DollarSign,
-  Loader2
+  Loader2,
+  BookOpen
 } from 'lucide-react'
 import { 
   getAdminStats, 
@@ -50,6 +52,7 @@ export default function AdminPage() {
   const [licensedAttorneys, setLicensedAttorneys] = useState<LicensedAttorney[]>([])
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     async function loadAdminData() {
@@ -236,7 +239,7 @@ export default function AdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Button variant="outline" className="h-20 flex-col gap-2">
                 <BarChart className="h-6 w-6" />
                 <span>System Reports</span>
@@ -248,6 +251,14 @@ export default function AdminPage() {
               <Button variant="outline" className="h-20 flex-col gap-2">
                 <FileText className="h-6 w-6" />
                 <span>Audit Logs</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col gap-2"
+                onClick={() => router.push('/admin/training')}
+              >
+                <BookOpen className="h-6 w-6" />
+                <span>Training Videos</span>
               </Button>
             </div>
           </CardContent>

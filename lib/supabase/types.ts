@@ -297,6 +297,56 @@ export interface Database {
           created_at?: string
         }
       }
+      training_videos: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          video_url: string
+          video_type: 'youtube' | 'vimeo' | 'loom' | 'other' | null
+          duration_minutes: number | null
+          category: 'cle' | 'keep'
+          module_id: string | null
+          course_id: number | null
+          order_index: number
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          video_url: string
+          video_type?: 'youtube' | 'vimeo' | 'loom' | 'other' | null
+          duration_minutes?: number | null
+          category: 'cle' | 'keep'
+          module_id?: string | null
+          course_id?: number | null
+          order_index?: number
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          video_url?: string
+          video_type?: 'youtube' | 'vimeo' | 'loom' | 'other' | null
+          duration_minutes?: number | null
+          category?: 'cle' | 'keep'
+          module_id?: string | null
+          course_id?: number | null
+          order_index?: number
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
