@@ -40,15 +40,15 @@ export default function DashboardPage() {
 
   // Get recent activity with proper time formatting
   const recentActivity = progress.activity.slice(0, 4).map(activity => {
-    const timeAgo = getTimeAgo(activity.timestamp)
-    const iconMap = {
+    const timeAgo = activity.timestamp ? getTimeAgo(activity.timestamp) : 'Recently'
+    const iconMap: Record<string, any> = {
       training: Award,
       template: FileText,
       support: HelpCircle,
       compliance: Shield,
       sop: BookOpen
     }
-    const colorMap = {
+    const colorMap: Record<string, string> = {
       training: 'text-blue-600',
       template: 'text-green-600', 
       support: 'text-purple-600',
@@ -59,8 +59,8 @@ export default function DashboardPage() {
     return {
       ...activity,
       time: timeAgo,
-      icon: iconMap[activity.type],
-      color: colorMap[activity.type]
+      icon: iconMap[activity.type] || HelpCircle,
+      color: colorMap[activity.type] || 'text-gray-600'
     }
   })
 
