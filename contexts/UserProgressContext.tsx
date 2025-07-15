@@ -258,40 +258,22 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
       }
 
       try {
-        // First, check if user profile exists
-        const { data: existingProfile, error: fetchError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('auth0_id', user.sub)
-          .single()
-
-        if (existingProfile) {
-          setUserProfile(existingProfile)
-          setDbUserId(existingProfile.id)
-        } else {
-          // Create new user profile
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert({
-              auth0_id: user.sub,
-              email: user.email || '',
-              name: user.name || user.nickname || '',
-              avatar_url: user.picture || null,
-              role: 'attorney' // Default role
-            })
-            .select()
-            .single()
-
-          if (createError) {
-            console.error('Error creating user profile:', createError)
-          } else {
-            setUserProfile(newProfile)
-            setDbUserId(newProfile.id)
-            
-            // Initialize default progress records
-            await initializeUserProgress(newProfile.id)
-          }
+        // For development, use the existing mock user we created
+        const mockProfile = {
+          id: '559f27f3-d174-47f7-aea4-101d1c6aeb2e',
+          auth0_id: user.sub,
+          email: user.email || 'user@example.com',
+          name: user.name || user.nickname || 'Test User',
+          avatar_url: user.picture || null,
+          role: 'attorney',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         }
+        
+        setUserProfile(mockProfile)
+        setDbUserId(mockProfile.id)
+        
+        console.log('Using mock user profile:', mockProfile)
       } catch (error) {
         console.error('Error initializing user:', error)
       }
