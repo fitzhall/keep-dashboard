@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import type { Database } from './types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || ''
 
 // Only create client if we have the required environment variables
 const createSupabaseClient = () => {
@@ -62,7 +62,8 @@ export const supabase = createSupabaseClient()
 
 // Admin client for server-side operations
 export const getServiceSupabase = () => {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !supabaseUrl) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+  if (!serviceKey || !supabaseUrl) {
     console.warn('Supabase service role key or URL not found. Admin features will be disabled.')
     // Return the same mock client
     return supabase
@@ -70,7 +71,7 @@ export const getServiceSupabase = () => {
   
   return createClient<Database>(
     supabaseUrl,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    serviceKey,
     {
       auth: {
         persistSession: false,
