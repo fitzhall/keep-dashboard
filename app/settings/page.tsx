@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useUserProgress } from '@/contexts/UserProgressContext'
 import { useToast } from '@/hooks/use-toast'
@@ -21,7 +21,7 @@ import {
 import { Loader2, Shield, Users, FileText, AlertCircle } from 'lucide-react'
 
 export default function SettingsPage() {
-  const { userProfile, refreshUserData } = useUserProgress()
+  const { userProfile } = useUserProgress()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   
@@ -30,6 +30,17 @@ export default function SettingsPage() {
     email: userProfile?.email || '',
     firm: userProfile?.firm || ''
   })
+
+  // Update form when userProfile changes
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        name: userProfile.name || '',
+        email: userProfile.email || '',
+        firm: userProfile.firm || ''
+      })
+    }
+  }, [userProfile])
 
   const handleSave = async () => {
     if (!userProfile?.id) return
@@ -46,12 +57,13 @@ export default function SettingsPage() {
       
       if (error) throw error
       
-      await refreshUserData()
-      
       toast({
         title: 'Settings saved',
         description: 'Your profile has been updated successfully.'
       })
+      
+      // Reload the page to get updated data
+      window.location.reload()
     } catch (error) {
       console.error('Error saving settings:', error)
       toast({
