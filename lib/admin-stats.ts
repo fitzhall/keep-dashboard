@@ -50,7 +50,7 @@ export async function getAdminStats(): Promise<AdminStats> {
       .gte('created_at', thirtyDaysAgo.toISOString())
       .order('user_id')
     
-    const uniqueActiveUsers = new Set(activeUsers?.map(a => a.user_id) || [])
+    const uniqueActiveUsers = new Set(activeUsers?.map((a: any) => a.user_id) || [])
     const activeLicenses = uniqueActiveUsers.size
 
     // Get documents created (template downloads)
