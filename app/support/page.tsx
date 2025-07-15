@@ -402,9 +402,11 @@ export default function SupportPage() {
                         </div>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            {supportCategories[ticket.category as keyof typeof supportCategories].icon && 
-                              <supportCategories[ticket.category as keyof typeof supportCategories].icon className="h-3 w-3" />
-                            }
+                            {(() => {
+                              const categoryInfo = supportCategories[ticket.category as keyof typeof supportCategories]
+                              const Icon = categoryInfo?.icon
+                              return Icon ? <Icon className="h-3 w-3" /> : null
+                            })()}
                             {supportCategories[ticket.category as keyof typeof supportCategories].label}
                           </span>
                           <span>
