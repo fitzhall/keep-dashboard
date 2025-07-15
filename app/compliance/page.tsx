@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { AuditTable } from '@/components/AuditTable'
 import { ComplianceScorecard } from '@/components/ComplianceScorecard'
 import { AuditReportGenerator } from '@/components/AuditReportGenerator'
+import { OnboardingChecklist } from '@/components/OnboardingChecklist'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
@@ -70,6 +71,7 @@ export default function CompliancePage() {
       <Tabs defaultValue="scorecard" className="space-y-6">
         <TabsList>
           <TabsTrigger value="scorecard">Compliance Scorecard</TabsTrigger>
+          <TabsTrigger value="onboarding">5-Day Onboarding</TabsTrigger>
           <TabsTrigger value="checklist">Ethics Checklist</TabsTrigger>
           <TabsTrigger value="audit">Audit Trail</TabsTrigger>
           <TabsTrigger value="reports">Audit Reports</TabsTrigger>
@@ -77,6 +79,10 @@ export default function CompliancePage() {
 
         <TabsContent value="scorecard">
           <ComplianceScorecard />
+        </TabsContent>
+
+        <TabsContent value="onboarding">
+          <OnboardingChecklist />
         </TabsContent>
 
         <TabsContent value="checklist" className="space-y-6">
