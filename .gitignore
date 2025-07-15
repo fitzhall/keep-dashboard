@@ -41,4 +41,7 @@ nohup.out
 
 # test files
 test-server.js
-EOF < /dev/null
+
+# scripts with sensitive data
+scripts/setup-database.ts
+scripts/run-migration.js
