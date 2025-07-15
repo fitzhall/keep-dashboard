@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useUserProgress } from '@/contexts/UserProgressContext'
+import { PracticeReadinessAssessment } from '@/components/PracticeReadinessAssessment'
 
 export default function DashboardPage() {
   const { progress, userProfile } = useUserProgress()
@@ -99,6 +100,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Practice Readiness Assessment */}
+      <PracticeReadinessAssessment />
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
