@@ -13,7 +13,8 @@ import {
   LogOut,
   Users,
   HelpCircle,
-  Award
+  Award,
+  BookOpen
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -26,6 +27,7 @@ import { usePermissions } from '@/hooks/use-permissions'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['admin', 'attorney', 'paralegal'] },
   { name: 'Start Here', href: '/start-here', icon: Rocket, roles: ['admin', 'attorney', 'paralegal'] },
+  { name: 'Training', href: '/training', icon: BookOpen, roles: ['admin', 'attorney', 'paralegal'] },
   { name: 'KEEP SOP', href: '/sop', icon: GraduationCap, roles: ['admin', 'attorney', 'paralegal'] },
   { name: 'Templates', href: '/templates', icon: FileText, roles: ['admin', 'attorney', 'paralegal'] },
   { name: 'Compliance', href: '/compliance', icon: Shield, roles: ['admin', 'attorney', 'paralegal'] },
