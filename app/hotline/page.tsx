@@ -9,46 +9,176 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { motion } from 'framer-motion'
 import { HelpCircle, MessageSquare, Clock, CheckCircle, AlertCircle, Phone, Shield, Info } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useUserProgress } from '@/contexts/UserProgressContext'
+import { supabase } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
+import { sendSlackNotification } from '@/lib/slack'
 
-const tickets = [
-  {
-    id: 'HLP-001',
-    subject: 'Multi-sig setup for family trust',
-    category: 'Technical',
-    priority: 'Medium',
-    status: 'Open',
-    createdAt: '2024-01-12',
-    responseTime: '< 24 hours'
-  },
-  {
-    id: 'HLP-002',
-    subject: 'Regulatory compliance question - California',
-    category: 'Legal',
-    priority: 'High',
-    status: 'Answered',
-    createdAt: '2024-01-10',
-    responseTime: '< 4 hours'
-  },
-  {
-    id: 'HLP-003',
-    subject: 'Best practices for key rotation',
-    category: 'Process',
-    priority: 'Low',
-    status: 'Closed',
-    createdAt: '2024-01-08',
-    responseTime: '< 12 hours'
+interface SupportTicket {
+  id: string
+  ticket_number: string
+  subject: string
+  category: string
+  priority: string
+  status: string
+  description: string
+  created_at: string
+  response?: string
+  responded_at?: string
+}
+
+// Helper function to format dates
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = Math.abs(now.getTime() - date.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) {
+    return 'Today'
+  } else if (diffDays === 1) {
+    return 'Yesterday'
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
-]
+}
 
 export default function HotlinePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [tickets, setTickets] = useState<SupportTicket[]>([])
+  const [isLoadingTickets, setIsLoadingTickets] = useState(true)
+  const { userProfile, dispatch } = useUserProgress()
+  const { toast } = useToast()
+  const router = useRouter()
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    category: '',
+    priority: '',
+    subject: '',
+    description: ''
+  })
+
+  // Load user's tickets on mount
+  useEffect(() => {
+    async function loadTickets() {
+      if (!userProfile?.id) return
+      
+      try {
+        const { data, error } = await supabase
+          .from('support_tickets')
+          .select('*')
+          .eq('user_id', userProfile.id)
+          .order('created_at', { ascending: false })
+        
+        if (error) throw error
+        
+        setTickets(data || [])
+      } catch (error) {
+        console.error('Error loading tickets:', error)
+        toast({
+          title: "Error loading tickets",
+          description: "Please try refreshing the page",
+          variant: "destructive"
+        })
+      } finally {
+        setIsLoadingTickets(false)
+      }
+    }
+    
+    loadTickets()
+  }, [userProfile?.id, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!userProfile?.id) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to submit a support request",
+        variant: "destructive"
+      })
+      return
+    }
+    
+    if (!formData.category || !formData.priority || !formData.subject || !formData.description) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      })
+      return
+    }
+    
     setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsSubmitting(false)
+    
+    try {
+      // Save ticket to database
+      const { data: newTicket, error } = await supabase
+        .from('support_tickets')
+        .insert({
+          user_id: userProfile.id,
+          category: formData.category,
+          priority: formData.priority,
+          subject: formData.subject,
+          description: formData.description,
+          status: 'open'
+        })
+        .select()
+        .single()
+      
+      if (error) throw error
+      
+      // Add to activity log
+      dispatch({
+        type: 'ADD_ACTIVITY',
+        activity: {
+          type: 'support',
+          title: 'Submitted support request',
+          description: `${formData.priority} priority: ${formData.subject}`
+        }
+      })
+      
+      // Add to local tickets list
+      setTickets([newTicket, ...tickets])
+      
+      // Reset form
+      setFormData({
+        category: '',
+        priority: '',
+        subject: '',
+        description: ''
+      })
+      
+      toast({
+        title: "Support request submitted",
+        description: `Ticket ${newTicket.ticket_number} created successfully`,
+      })
+      
+      // Send Slack notification
+      await sendSlackNotification({
+        ticket_number: newTicket.ticket_number,
+        category: newTicket.category,
+        priority: newTicket.priority,
+        subject: newTicket.subject,
+        description: newTicket.description,
+        user_email: userProfile.email
+      })
+      
+    } catch (error) {
+      console.error('Error submitting ticket:', error)
+      toast({
+        title: "Error submitting request",
+        description: "Please try again or contact support directly",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -126,7 +256,10 @@ export default function HotlinePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="category">Category</Label>
-                      <Select>
+                      <Select 
+                        value={formData.category}
+                        onValueChange={(value) => setFormData({ ...formData, category: value })}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
@@ -142,7 +275,10 @@ export default function HotlinePage() {
                     
                     <div className="space-y-2">
                       <Label htmlFor="priority">Priority</Label>
-                      <Select>
+                      <Select
+                        value={formData.priority}
+                        onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
@@ -160,6 +296,8 @@ export default function HotlinePage() {
                     <Input 
                       id="subject"
                       placeholder="Brief description of your question"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       required
                     />
                   </div>
@@ -170,6 +308,8 @@ export default function HotlinePage() {
                       id="description"
                       rows={6}
                       placeholder="Please provide as much detail as possible about your question or situation. Include relevant client context while keeping confidential details general."
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       required
                     />
                   </div>
@@ -267,61 +407,73 @@ export default function HotlinePage() {
             </p>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {tickets.map((ticket, index) => (
-                <motion.div
-                  key={ticket.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1 }}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold">{ticket.id}</span>
-                      <Badge 
-                        variant={
-                          ticket.status === 'Open' ? 'secondary' :
-                          ticket.status === 'Answered' ? 'default' :
-                          'outline'
-                        }
-                      >
-                        {ticket.status}
-                      </Badge>
-                      <Badge 
-                        variant={
-                          ticket.priority === 'High' ? 'destructive' :
-                          ticket.priority === 'Medium' ? 'secondary' :
-                          'outline'
-                        }
-                      >
-                        {ticket.priority}
-                      </Badge>
+            {isLoadingTickets ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading your support requests...
+              </div>
+            ) : tickets.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No support requests yet. Submit one above when you need help!
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {tickets.map((ticket, index) => (
+                  <motion.div
+                    key={ticket.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 + index * 0.1 }}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold">{ticket.ticket_number}</span>
+                        <Badge 
+                          variant={
+                            ticket.status === 'open' ? 'secondary' :
+                            ticket.status === 'answered' ? 'default' :
+                            'outline'
+                          }
+                        >
+                          {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                        </Badge>
+                        <Badge 
+                          variant={
+                            ticket.priority === 'high' ? 'destructive' :
+                            ticket.priority === 'medium' ? 'secondary' :
+                            'outline'
+                          }
+                        >
+                          {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                        </Badge>
+                      </div>
+                      <h3 className="font-medium">{ticket.subject}</h3>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Shield className="h-3 w-3" />
+                          {ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)}
+                        </span>
+                        <span>Created {formatDate(ticket.created_at)}</span>
+                        {ticket.responded_at && (
+                          <span>Responded {formatDate(ticket.responded_at)}</span>
+                        )}
+                      </div>
                     </div>
-                    <h3 className="font-medium">{ticket.subject}</h3>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Shield className="h-3 w-3" />
-                        {ticket.category}
-                      </span>
-                      <span>Created {ticket.createdAt}</span>
-                      <span>Response: {ticket.responseTime}</span>
+                    <div className="flex items-center gap-2">
+                      {ticket.status === 'answered' && (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      )}
+                      {ticket.status === 'open' && (
+                        <AlertCircle className="h-5 w-5 text-yellow-600" />
+                      )}
+                      <Button variant="outline" size="sm">
+                        View Details
+                      </Button>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {ticket.status === 'Answered' && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                    )}
-                    {ticket.status === 'Open' && (
-                      <AlertCircle className="h-5 w-5 text-yellow-600" />
-                    )}
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

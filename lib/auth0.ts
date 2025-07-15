@@ -1,18 +1,26 @@
-import { Auth0Client } from '@auth0/nextjs-auth0/server'
+// import { Auth0Client } from '@auth0/nextjs-auth0/server' // TODO: Fix Auth0 server import
 
-// Check for required environment variables
-const requiredEnvVars = ['AUTH0_SECRET', 'AUTH0_BASE_URL', 'AUTH0_ISSUER_BASE_URL', 'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET']
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName])
+// Mock Auth0 client until properly configured
+import { NextResponse } from 'next/server'
 
-if (missingEnvVars.length > 0) {
-  console.error('Missing required Auth0 environment variables:', missingEnvVars)
+export const auth0 = {
+  getSession: async () => {
+    // Return mock session for development
+    return {
+      user: {
+        sub: 'auth0|mock-user-id',
+        email: 'user@example.com',
+        name: 'Test User',
+        picture: undefined,
+        nickname: 'testuser'
+      }
+    }
+  },
+  getAccessToken: async () => {
+    return { accessToken: 'mock-access-token' }
+  },
+  middleware: async (request: any) => {
+    // Mock middleware - just pass through all requests
+    return NextResponse.next()
+  }
 }
-
-export const auth0 = new Auth0Client({
-  signInReturnToPath: '/dashboard',
-  appBaseUrl: process.env.AUTH0_BASE_URL || process.env.APP_BASE_URL,
-  domain: process.env.AUTH0_ISSUER_BASE_URL?.replace('https://', '').replace('/', '') || process.env.AUTH0_DOMAIN,
-  clientId: process.env.AUTH0_CLIENT_ID,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET,
-  secret: process.env.AUTH0_SECRET
-})

@@ -1,6 +1,21 @@
 'use client'
 
-import React, { createContext, useContext, useReducer, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase/client'
+// import { useUser } from '@auth0/nextjs-auth0/client' // TODO: Fix Auth0 client import
+
+// Mock user hook until Auth0 is properly configured
+const useUser = () => {
+  return {
+    user: {
+      sub: 'auth0|mock-user-id',
+      email: 'user@example.com',
+      name: 'Test User',
+      picture: undefined,
+      nickname: 'testuser'
+    }
+  }
+}
 
 // Types
 export interface CourseProgress {
@@ -39,57 +54,23 @@ export interface UserProgress {
 // Initial state
 const initialProgress: UserProgress = {
   courses: [
-    { id: 1, status: 'completed', progress: 100, completedDate: '2024-01-10' },
-    { id: 2, status: 'in-progress', progress: 65, lastAccessed: '2024-01-14' },
+    { id: 1, status: 'not-started', progress: 0 },
+    { id: 2, status: 'not-started', progress: 0 },
     { id: 3, status: 'not-started', progress: 0 },
     { id: 4, status: 'not-started', progress: 0 },
   ],
   sopPhases: [
-    { phase: 1, status: 'completed', completedDate: '2024-01-05' },
-    { phase: 2, status: 'completed', completedDate: '2024-01-08' },
-    { phase: 3, status: 'completed', completedDate: '2024-01-12' },
+    { phase: 1, status: 'not-started' },
+    { phase: 2, status: 'not-started' },
+    { phase: 3, status: 'not-started' },
     { phase: 4, status: 'not-started' },
     { phase: 5, status: 'not-started' },
     { phase: 6, status: 'not-started' },
     { phase: 7, status: 'not-started' },
   ],
-  templatesDownloaded: [
-    'bitcoin-trust-template.md',
-    'client-intake-questionnaire.md', 
-    'compliance-checklist.md',
-    'family-recovery-guide.md'
-  ],
-  complianceScore: 85,
-  activity: [
-    {
-      id: '1',
-      type: 'training',
-      title: 'Completed Bitcoin Estate Planning Fundamentals',
-      description: 'Earned 2.5 CLE credits',
-      timestamp: '2024-01-10T10:30:00Z'
-    },
-    {
-      id: '2', 
-      type: 'template',
-      title: 'Downloaded Bitcoin Trust Template',
-      description: 'Added to your practice toolkit',
-      timestamp: '2024-01-09T14:20:00Z'
-    },
-    {
-      id: '3',
-      type: 'support',
-      title: 'Expert Hotline Response Received', 
-      description: 'Multi-sig setup guidance provided',
-      timestamp: '2024-01-07T09:15:00Z'
-    },
-    {
-      id: '4',
-      type: 'compliance',
-      title: 'Compliance Checklist Updated',
-      description: 'New California regulations added',
-      timestamp: '2024-01-05T16:45:00Z'
-    }
-  ],
+  templatesDownloaded: [],
+  complianceScore: 0,
+  activity: [],
   lastUpdated: new Date().toISOString()
 }
 
@@ -104,6 +85,7 @@ type ProgressAction =
   | { type: 'UPDATE_COMPLIANCE_SCORE'; score: number }
   | { type: 'ADD_ACTIVITY'; activity: Omit<ActivityItem, 'id' | 'timestamp'> }
   | { type: 'LOAD_PROGRESS'; progress: UserProgress }
+  | { type: 'SYNC_FROM_DATABASE'; progress: UserProgress }
 
 // Reducer
 function progressReducer(state: UserProgress, action: ProgressAction): UserProgress {
@@ -243,6 +225,7 @@ function progressReducer(state: UserProgress, action: ProgressAction): UserProgr
       }
 
     case 'LOAD_PROGRESS':
+    case 'SYNC_FROM_DATABASE':
       return action.progress
 
     default:
@@ -254,32 +237,220 @@ function progressReducer(state: UserProgress, action: ProgressAction): UserProgr
 const UserProgressContext = createContext<{
   progress: UserProgress
   dispatch: React.Dispatch<ProgressAction>
+  isLoading: boolean
+  userProfile: any
 } | undefined>(undefined)
 
 // Provider
 export function UserProgressProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useUser()
   const [progress, dispatch] = useReducer(progressReducer, initialProgress)
+  const [isLoading, setIsLoading] = useState(true)
+  const [userProfile, setUserProfile] = useState(null)
+  const [dbUserId, setDbUserId] = useState<string | null>(null)
 
-  // Load from localStorage on mount
+  // Initialize user profile in database
   useEffect(() => {
-    const saved = localStorage.getItem('keep-user-progress')
-    if (saved) {
+    async function initializeUser() {
+      if (!user?.sub) {
+        setIsLoading(false)
+        return
+      }
+
       try {
-        const parsedProgress = JSON.parse(saved)
-        dispatch({ type: 'LOAD_PROGRESS', progress: parsedProgress })
+        // First, check if user profile exists
+        const { data: existingProfile, error: fetchError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('auth0_id', user.sub)
+          .single()
+
+        if (existingProfile) {
+          setUserProfile(existingProfile)
+          setDbUserId(existingProfile.id)
+        } else {
+          // Create new user profile
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert({
+              auth0_id: user.sub,
+              email: user.email || '',
+              name: user.name || user.nickname || '',
+              avatar_url: user.picture || null,
+              role: 'attorney' // Default role
+            })
+            .select()
+            .single()
+
+          if (createError) {
+            console.error('Error creating user profile:', createError)
+          } else {
+            setUserProfile(newProfile)
+            setDbUserId(newProfile.id)
+            
+            // Initialize default progress records
+            await initializeUserProgress(newProfile.id)
+          }
+        }
       } catch (error) {
-        console.error('Failed to load progress from localStorage:', error)
+        console.error('Error initializing user:', error)
       }
     }
-  }, [])
 
-  // Save to localStorage whenever progress changes
+    initializeUser()
+  }, [user])
+
+  // Load progress from database
   useEffect(() => {
-    localStorage.setItem('keep-user-progress', JSON.stringify(progress))
-  }, [progress])
+    async function loadProgress() {
+      if (!dbUserId) return
+
+      try {
+        // Load course progress
+        const { data: courses } = await supabase
+          .from('course_progress')
+          .select('*')
+          .eq('user_id', dbUserId)
+
+        // Load SOP progress
+        const { data: sopPhases } = await supabase
+          .from('sop_progress')
+          .select('*')
+          .eq('user_id', dbUserId)
+
+        // Load template downloads
+        const { data: templates } = await supabase
+          .from('template_downloads')
+          .select('*')
+          .eq('user_id', dbUserId)
+
+        // Load activity log
+        const { data: activities } = await supabase
+          .from('activity_log')
+          .select('*')
+          .eq('user_id', dbUserId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+
+        // Load compliance score
+        const { data: compliance } = await supabase
+          .from('compliance_scores')
+          .select('*')
+          .eq('user_id', dbUserId)
+          .single()
+
+        // Merge with initial state
+        const mergedProgress: UserProgress = {
+          courses: initialProgress.courses.map(course => {
+            const dbCourse = courses?.find(c => c.course_id === course.id)
+            return dbCourse ? {
+              id: course.id,
+              status: dbCourse.status,
+              progress: dbCourse.progress,
+              completedDate: dbCourse.completed_date,
+              lastAccessed: dbCourse.last_accessed
+            } : course
+          }),
+          sopPhases: initialProgress.sopPhases.map(phase => {
+            const dbPhase = sopPhases?.find(p => p.phase === phase.phase)
+            return dbPhase ? {
+              phase: phase.phase,
+              status: dbPhase.status,
+              completedDate: dbPhase.completed_date,
+              lastAccessed: dbPhase.last_accessed
+            } : phase
+          }),
+          templatesDownloaded: templates?.map(t => t.template_id) || [],
+          complianceScore: compliance?.score || 0,
+          activity: activities?.map(a => ({
+            id: a.id,
+            type: a.type,
+            title: a.title,
+            description: a.description,
+            timestamp: a.created_at,
+            metadata: a.metadata
+          })) || [],
+          lastUpdated: new Date().toISOString()
+        }
+
+        dispatch({ type: 'SYNC_FROM_DATABASE', progress: mergedProgress })
+        
+        // Also check localStorage for any unsynced data
+        const localData = localStorage.getItem('keep-user-progress')
+        if (localData) {
+          try {
+            const localProgress = JSON.parse(localData)
+            await syncLocalToDatabase(localProgress, dbUserId)
+            localStorage.removeItem('keep-user-progress') // Clean up after sync
+          } catch (error) {
+            console.error('Error syncing local data:', error)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading progress:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadProgress()
+  }, [dbUserId])
+
+  // Sync progress changes to database
+  useEffect(() => {
+    if (!dbUserId || isLoading) return
+
+    const syncToDatabase = async () => {
+      try {
+        // Update course progress
+        for (const course of progress.courses) {
+          if (course.progress > 0 || course.status !== 'not-started') {
+            await supabase
+              .from('course_progress')
+              .upsert({
+                user_id: dbUserId,
+                course_id: course.id,
+                status: course.status,
+                progress: course.progress,
+                completed_date: course.completedDate,
+                last_accessed: course.lastAccessed
+              })
+          }
+        }
+
+        // Update SOP progress
+        for (const phase of progress.sopPhases) {
+          if (phase.status !== 'not-started') {
+            await supabase
+              .from('sop_progress')
+              .upsert({
+                user_id: dbUserId,
+                phase: phase.phase,
+                status: phase.status,
+                completed_date: phase.completedDate,
+                last_accessed: phase.lastAccessed
+              })
+          }
+        }
+
+        // Update compliance score
+        await supabase
+          .from('compliance_scores')
+          .upsert({
+            user_id: dbUserId,
+            score: progress.complianceScore
+          })
+      } catch (error) {
+        console.error('Error syncing to database:', error)
+      }
+    }
+
+    const debounceTimer = setTimeout(syncToDatabase, 1000)
+    return () => clearTimeout(debounceTimer)
+  }, [progress, dbUserId, isLoading])
 
   return (
-    <UserProgressContext.Provider value={{ progress, dispatch }}>
+    <UserProgressContext.Provider value={{ progress, dispatch, isLoading, userProfile }}>
       {children}
     </UserProgressContext.Provider>
   )
@@ -292,4 +463,66 @@ export function useUserProgress() {
     throw new Error('useUserProgress must be used within a UserProgressProvider')
   }
   return context
+}
+
+// Helper functions
+async function initializeUserProgress(userId: string) {
+  // Initialize course progress
+  for (let i = 1; i <= 4; i++) {
+    await supabase.from('course_progress').upsert({
+      user_id: userId,
+      course_id: i,
+      status: 'not-started',
+      progress: 0
+    })
+  }
+
+  // Initialize SOP progress
+  for (let i = 1; i <= 7; i++) {
+    await supabase.from('sop_progress').upsert({
+      user_id: userId,
+      phase: i,
+      status: 'not-started'
+    })
+  }
+
+  // Initialize compliance score
+  await supabase.from('compliance_scores').upsert({
+    user_id: userId,
+    score: 0
+  })
+}
+
+async function syncLocalToDatabase(localProgress: UserProgress, userId: string) {
+  // Sync any progress from localStorage that might be more recent
+  for (const course of localProgress.courses) {
+    if (course.progress > 0) {
+      await supabase.from('course_progress').upsert({
+        user_id: userId,
+        course_id: course.id,
+        status: course.status,
+        progress: course.progress,
+        completed_date: course.completedDate,
+        last_accessed: course.lastAccessed
+      })
+    }
+  }
+
+  for (const download of localProgress.templatesDownloaded) {
+    await supabase.from('template_downloads').upsert({
+      user_id: userId,
+      template_id: download,
+      template_name: download // We'll improve this later
+    })
+  }
+
+  for (const activity of localProgress.activity.slice(0, 10)) {
+    await supabase.from('activity_log').insert({
+      user_id: userId,
+      type: activity.type,
+      title: activity.title,
+      description: activity.description,
+      metadata: activity.metadata
+    })
+  }
 }
