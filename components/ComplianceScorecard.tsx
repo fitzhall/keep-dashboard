@@ -1,10 +1,14 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
+import { useUserProgress } from '@/contexts/UserProgressContext'
+import { getComplianceCategories, calculateOverallScore } from '@/lib/compliance-data'
+import { useToast } from '@/hooks/use-toast'
 import { 
   Shield, 
   AlertCircle, 
@@ -18,87 +22,28 @@ import {
   Users,
   Briefcase,
   Award,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react'
 
-interface ComplianceCategory {
-  id: string
-  name: string
-  icon: React.ElementType
-  score: number
-  trend: 'up' | 'down' | 'stable'
-  items: {
-    completed: number
-    total: number
-  }
-  lastUpdated: string
-  status: 'excellent' | 'good' | 'attention' | 'critical'
+// Icon mapping for categories
+const categoryIcons: Record<string, React.ElementType> = {
+  'ethics': Shield,
+  'documentation': FileText,
+  'training': BookOpen,
+  'client-management': Users,
+  'business-practices': Briefcase,
+  'certifications': Award
 }
 
-const categories: ComplianceCategory[] = [
-  {
-    id: 'ethics',
-    name: 'Ethics & Professional Responsibility',
-    icon: Shield,
-    score: 85,
-    trend: 'up',
-    items: { completed: 17, total: 20 },
-    lastUpdated: '2 days ago',
-    status: 'good'
-  },
-  {
-    id: 'documentation',
-    name: 'Client Documentation',
-    icon: FileText,
-    score: 92,
-    trend: 'stable',
-    items: { completed: 23, total: 25 },
-    lastUpdated: '1 day ago',
-    status: 'excellent'
-  },
-  {
-    id: 'training',
-    name: 'Required Training',
-    icon: BookOpen,
-    score: 78,
-    trend: 'up',
-    items: { completed: 7, total: 9 },
-    lastUpdated: '3 days ago',
-    status: 'attention'
-  },
-  {
-    id: 'client-management',
-    name: 'Client Management',
-    icon: Users,
-    score: 88,
-    trend: 'up',
-    items: { completed: 22, total: 25 },
-    lastUpdated: '1 day ago',
-    status: 'good'
-  },
-  {
-    id: 'business-practices',
-    name: 'Business Practices',
-    icon: Briefcase,
-    score: 95,
-    trend: 'stable',
-    items: { completed: 19, total: 20 },
-    lastUpdated: 'Today',
-    status: 'excellent'
-  },
-  {
-    id: 'certifications',
-    name: 'Certifications & Licenses',
-    icon: Award,
-    score: 65,
-    trend: 'down',
-    items: { completed: 13, total: 20 },
-    lastUpdated: '1 week ago',
-    status: 'critical'
-  }
-]
+function getStatus(score: number): 'excellent' | 'good' | 'attention' | 'critical' {
+  if (score >= 90) return 'excellent'
+  if (score >= 80) return 'good'
+  if (score >= 70) return 'attention'
+  return 'critical'
+}
 
-function getStatusColor(status: ComplianceCategory['status']) {
+function getStatusColor(status: 'excellent' | 'good' | 'attention' | 'critical') {
   switch (status) {
     case 'excellent': return 'text-green-600'
     case 'good': return 'text-blue-600'
@@ -107,7 +52,7 @@ function getStatusColor(status: ComplianceCategory['status']) {
   }
 }
 
-function getStatusBadge(status: ComplianceCategory['status']) {
+function getStatusBadge(status: 'excellent' | 'good' | 'attention' | 'critical') {
   switch (status) {
     case 'excellent': return 'default'
     case 'good': return 'secondary'
@@ -116,18 +61,58 @@ function getStatusBadge(status: ComplianceCategory['status']) {
   }
 }
 
-function getTrendIcon(trend: ComplianceCategory['trend']) {
+function getTrendIcon(trend: 'up' | 'down' | 'stable' | null) {
   switch (trend) {
     case 'up': return <TrendingUp className="h-4 w-4 text-green-600" />
     case 'down': return <TrendingDown className="h-4 w-4 text-red-600" />
-    case 'stable': return <Minus className="h-4 w-4 text-gray-600" />
+    default: return <Minus className="h-4 w-4 text-gray-600" />
   }
 }
 
+function formatLastUpdated(date: string): string {
+  const updated = new Date(date)
+  const now = new Date()
+  const diffMs = now.getTime() - updated.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return '1 day ago'
+  if (diffDays < 7) return `${diffDays} days ago`
+  return `${Math.floor(diffDays / 7)} weeks ago`
+}
+
 export function ComplianceScorecard() {
-  const overallScore = Math.round(
-    categories.reduce((sum, cat) => sum + cat.score, 0) / categories.length
-  )
+  const { userProfile } = useUserProgress()
+  const { toast } = useToast()
+  const [categories, setCategories] = useState<any[]>([])
+  const [overallScore, setOverallScore] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (userProfile?.id) {
+      loadComplianceData()
+    }
+  }, [userProfile])
+
+  async function loadComplianceData() {
+    if (!userProfile?.id) return
+
+    try {
+      const data = await getComplianceCategories(userProfile.id)
+      setCategories(data)
+      const score = calculateOverallScore(data)
+      setOverallScore(score)
+    } catch (error) {
+      console.error('Error loading compliance data:', error)
+      toast({
+        title: 'Error loading compliance data',
+        description: 'Please try refreshing the page',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const getOverallStatus = (score: number) => {
     if (score >= 90) return { status: 'Excellent', color: 'text-green-600', icon: CheckCircle }
@@ -138,6 +123,14 @@ export function ComplianceScorecard() {
 
   const overall = getOverallStatus(overallScore)
   const OverallIcon = overall.icon
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -193,10 +186,12 @@ export function ComplianceScorecard() {
       {/* Category Breakdown */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {categories.map((category, index) => {
-          const Icon = category.icon
+          const Icon = categoryIcons[category.category_id] || Shield
+          const status = getStatus(category.score)
+          
           return (
             <motion.div
-              key={category.id}
+              key={category.category_id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
@@ -204,26 +199,26 @@ export function ComplianceScorecard() {
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <Icon className={`h-5 w-5 ${getStatusColor(category.status)}`} />
+                    <Icon className={`h-5 w-5 ${getStatusColor(status)}`} />
                     {getTrendIcon(category.trend)}
                   </div>
-                  <CardTitle className="text-base">{category.name}</CardTitle>
+                  <CardTitle className="text-base">{category.category_name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-end justify-between mb-3">
                     <div>
                       <span className="text-3xl font-bold">{category.score}%</span>
                       <p className="text-xs text-muted-foreground">
-                        {category.items.completed}/{category.items.total} completed
+                        {category.items_completed}/{category.items_total} completed
                       </p>
                     </div>
-                    <Badge variant={getStatusBadge(category.status)}>
-                      {category.status}
+                    <Badge variant={getStatusBadge(status)}>
+                      {status}
                     </Badge>
                   </div>
                   <Progress value={category.score} className="h-2 mb-2" />
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Updated {category.lastUpdated}</span>
+                    <span>Updated {formatLastUpdated(category.last_updated)}</span>
                     <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
                       View Details
                     </Button>

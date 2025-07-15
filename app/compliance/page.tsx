@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -11,48 +12,60 @@ import { AuditReportGenerator } from '@/components/AuditReportGenerator'
 import { OnboardingChecklist } from '@/components/OnboardingChecklist'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
-
-const ethicsItems = [
-  {
-    id: 1,
-    title: 'Competence (ABA Rule 1.1)',
-    description: 'Completed required Bitcoin estate planning training and certification',
-    completed: false,
-  },
-  {
-    id: 2,
-    title: 'Confidentiality (ABA Rule 1.6)',
-    description: 'Established secure procedures for handling client Bitcoin information',
-    completed: true,
-  },
-  {
-    id: 3,
-    title: 'Conflict of Interest (ABA Rule 1.7)',
-    description: 'Completed conflict check for cryptocurrency-related matters',
-    completed: true,
-  },
-  {
-    id: 4,
-    title: 'Client Communication (ABA Rule 1.4)',
-    description: 'Provided clear written explanation of Bitcoin estate planning process',
-    completed: false,
-  },
-]
-
-const onboardingDays = [
-  { day: 1, task: 'Platform Setup', status: 'Complete' },
-  { day: 2, task: 'SOP Training', status: 'Complete' },
-  { day: 3, task: 'Document Review', status: 'In Progress' },
-  { day: 4, task: 'Mock Client', status: 'Pending' },
-  { day: 5, task: 'Certification', status: 'Pending' },
-]
+import { useUserProgress } from '@/contexts/UserProgressContext'
+import { getEthicsChecklist, toggleEthicsChecklistItem } from '@/lib/compliance-data'
+import { useToast } from '@/hooks/use-toast'
+import { Loader2 } from 'lucide-react'
 
 export default function CompliancePage() {
-  const [checkedItems, setCheckedItems] = useState<number[]>([2, 3])
-  const completedCount = checkedItems.length
+  const { userProfile } = useUserProgress()
+  const { toast } = useToast()
+  const [ethicsItems, setEthicsItems] = useState<any[]>([])
+  const [isLoadingEthics, setIsLoadingEthics] = useState(true)
+
+  useEffect(() => {
+    if (userProfile?.id) {
+      loadEthicsChecklist()
+    }
+  }, [userProfile])
+
+  async function loadEthicsChecklist() {
+    if (!userProfile?.id) return
+
+    try {
+      const data = await getEthicsChecklist(userProfile.id)
+      setEthicsItems(data)
+    } catch (error) {
+      console.error('Error loading ethics checklist:', error)
+      toast({
+        title: 'Error loading checklist',
+        description: 'Please try refreshing the page',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoadingEthics(false)
+    }
+  }
+
+  async function handleEthicsToggle(itemId: number) {
+    if (!userProfile?.id) return
+
+    try {
+      await toggleEthicsChecklistItem(userProfile.id, itemId)
+      await loadEthicsChecklist()
+    } catch (error) {
+      console.error('Error toggling checklist item:', error)
+      toast({
+        title: 'Error updating checklist',
+        description: 'Please try again',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const completedCount = ethicsItems.filter(item => item.completed).length
   const totalCount = ethicsItems.length
-  const progressPercentage = (completedCount / totalCount) * 100
+  const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
 
   return (
     <>
@@ -98,66 +111,37 @@ export default function CompliancePage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {ethicsItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="flex items-start space-x-3 rounded-lg border p-4 hover:bg-accent transition-colors"
-                >
-                  <Checkbox
-                    checked={checkedItems.includes(item.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setCheckedItems([...checkedItems, item.id])
-                      } else {
-                        setCheckedItems(checkedItems.filter(id => id !== item.id))
-                      }
-                    }}
-                  />
-                  <div className="grid gap-1.5 leading-none">
-                    <p className="font-medium">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {isLoadingEthics ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {ethicsItems.map((item, index) => (
+                  <motion.div
+                    key={item.item_id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    className="flex items-start space-x-3 rounded-lg border p-4 hover:bg-accent transition-colors"
+                  >
+                    <Checkbox
+                      checked={item.completed}
+                      onCheckedChange={() => handleEthicsToggle(item.item_id)}
+                    />
+                    <div className="grid gap-1.5 leading-none">
+                      <p className="font-medium">{item.title}</p>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* 5-Day Onboarding */}
-          <Card>
-            <CardHeader>
-              <CardTitle>5-Day Onboarding</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {onboardingDays.map((day, index) => (
-                  <motion.div
-                    key={day.day}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-sm">Day {day.day}: {day.task}</span>
-                    <Badge variant={
-                      day.status === 'Complete' ? 'default' :
-                      day.status === 'In Progress' ? 'secondary' :
-                      'outline'
-                    }>
-                      {day.status}
-                    </Badge>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Quality Control */}
           <Card>
             <CardHeader>

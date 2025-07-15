@@ -347,6 +347,158 @@ export interface Database {
           updated_at?: string
         }
       }
+      compliance_categories: {
+        Row: {
+          id: string
+          user_id: string
+          category_id: string
+          category_name: string
+          score: number
+          items_completed: number
+          items_total: number
+          trend: 'up' | 'down' | 'stable' | null
+          last_updated: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category_id: string
+          category_name: string
+          score?: number
+          items_completed?: number
+          items_total?: number
+          trend?: 'up' | 'down' | 'stable' | null
+          last_updated?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category_id?: string
+          category_name?: string
+          score?: number
+          items_completed?: number
+          items_total?: number
+          trend?: 'up' | 'down' | 'stable' | null
+          last_updated?: string
+          created_at?: string
+        }
+      }
+      ethics_checklist: {
+        Row: {
+          id: string
+          user_id: string
+          item_id: number
+          title: string
+          description: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          item_id: number
+          title: string
+          description?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          item_id?: number
+          title?: string
+          description?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      onboarding_tasks: {
+        Row: {
+          id: string
+          user_id: string
+          day_number: number
+          task_id: string
+          title: string
+          description: string | null
+          time_estimate: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          day_number: number
+          task_id: string
+          title: string
+          description?: string | null
+          time_estimate?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          day_number?: number
+          task_id?: string
+          title?: string
+          description?: string | null
+          time_estimate?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      compliance_reports: {
+        Row: {
+          id: string
+          user_id: string
+          report_type: 'monthly' | 'quarterly' | 'annual' | 'custom'
+          report_format: 'pdf' | 'excel' | 'word'
+          date_from: string
+          date_to: string
+          file_name: string
+          file_size: string | null
+          sections: Json | null
+          generated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          report_type: 'monthly' | 'quarterly' | 'annual' | 'custom'
+          report_format: 'pdf' | 'excel' | 'word'
+          date_from: string
+          date_to: string
+          file_name: string
+          file_size?: string | null
+          sections?: Json | null
+          generated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          report_type?: 'monthly' | 'quarterly' | 'annual' | 'custom'
+          report_format?: 'pdf' | 'excel' | 'word'
+          date_from?: string
+          date_to?: string
+          file_name?: string
+          file_size?: string | null
+          sections?: Json | null
+          generated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
