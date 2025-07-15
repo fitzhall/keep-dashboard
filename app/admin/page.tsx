@@ -14,7 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { InviteUserDialog } from '@/components/InviteUserDialog'
 import { 
   Users, 
@@ -31,99 +31,62 @@ import {
   Phone,
   MapPin,
   Calendar,
-  DollarSign
+  DollarSign,
+  Loader2
 } from 'lucide-react'
-
-// Mock licensed attorney data - these are the law firms/attorneys using KEEP
-const licensedAttorneys = [
-  {
-    id: 1,
-    attorney: 'Sarah Johnson, Esq.',
-    email: 'sarah.johnson@johnsonlaw.com',
-    firm: 'Johnson Estate Planning',
-    licenseType: 'Premium',
-    status: 'Active',
-    lastLogin: '2024-01-14',
-    licensedSince: '2023-06-15',
-    monthlyRevenue: '$2,500',
-    casesThisMonth: 8,
-    complianceScore: 95,
-    barNumber: 'CA123456'
-  },
-  {
-    id: 2,
-    attorney: 'Michael Chen, Esq.',
-    email: 'mchen@chenlaw.com',
-    firm: 'Chen & Associates',
-    licenseType: 'Standard',
-    status: 'Active',
-    lastLogin: '2024-01-13',
-    licensedSince: '2023-08-22',
-    monthlyRevenue: '$1,800',
-    casesThisMonth: 5,
-    complianceScore: 88,
-    barNumber: 'NY789012'
-  },
-  {
-    id: 3,
-    attorney: 'Emma Rodriguez, Esq.',
-    email: 'emma@rodriguezlaw.com',
-    firm: 'Rodriguez Family Law',
-    licenseType: 'Premium',
-    status: 'Payment Overdue',
-    lastLogin: '2024-01-10',
-    licensedSince: '2023-03-10',
-    monthlyRevenue: '$3,200',
-    casesThisMonth: 12,
-    complianceScore: 92,
-    barNumber: 'TX345678'
-  },
-  {
-    id: 4,
-    attorney: 'David Thompson, Esq.',
-    email: 'dthompson@thompsonlaw.com',
-    firm: 'Thompson Estate Services',
-    licenseType: 'Enterprise',
-    status: 'Active',
-    lastLogin: '2024-01-14',
-    licensedSince: '2023-01-05',
-    monthlyRevenue: '$5,000',
-    casesThisMonth: 18,
-    complianceScore: 98,
-    barNumber: 'FL901234'
-  },
-  {
-    id: 5,
-    attorney: 'Lisa Park, Esq.',
-    email: 'lpark@parklaw.com',
-    firm: 'Park Legal Group',
-    licenseType: 'Trial',
-    status: 'Trial Period',
-    lastLogin: '2024-01-12',
-    licensedSince: '2024-01-01',
-    monthlyRevenue: '$0',
-    casesThisMonth: 2,
-    complianceScore: 75,
-    barNumber: 'IL567890'
-  },
-  {
-    id: 6,
-    attorney: 'Robert Kim, Esq.',
-    email: 'rkim@kimlaw.com',
-    firm: 'Kim Estate Planning',
-    licenseType: 'Standard',
-    status: 'Inactive',
-    lastLogin: '2023-12-28',
-    licensedSince: '2023-09-15',
-    monthlyRevenue: '$1,200',
-    casesThisMonth: 0,
-    complianceScore: 82,
-    barNumber: 'WA234567'
-  }
-]
+import { 
+  getAdminStats, 
+  getLicensedAttorneys, 
+  getRecentActivity,
+  type AdminStats,
+  type LicensedAttorney,
+  type RecentActivity
+} from '@/lib/admin-stats'
 
 export default function AdminPage() {
   const [showInviteDialog, setShowInviteDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [adminStats, setAdminStats] = useState<AdminStats | null>(null)
+  const [licensedAttorneys, setLicensedAttorneys] = useState<LicensedAttorney[]>([])
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    async function loadAdminData() {
+      try {
+        const [stats, attorneys, activities] = await Promise.all([
+          getAdminStats(),
+          getLicensedAttorneys(),
+          getRecentActivity(5)
+        ])
+        
+        setAdminStats(stats)
+        setLicensedAttorneys(attorneys)
+        setRecentActivity(activities)
+      } catch (error) {
+        console.error('Error loading admin data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadAdminData()
+  }, [])
+
+  // Filter attorneys based on search query
+  const filteredAttorneys = licensedAttorneys.filter(attorney => 
+    attorney.attorney.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    attorney.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    attorney.firm.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
   
   return (
     <>
@@ -142,10 +105,30 @@ export default function AdminPage() {
       {/* Admin Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         {[
-          { name: 'Total Users', value: '47', icon: Users, trend: '+12%' },
-          { name: 'Active Licenses', value: '10', icon: Shield, trend: '+2' },
-          { name: 'Documents Created', value: '283', icon: FileText, trend: '+18%' },
-          { name: 'System Health', value: '99.9%', icon: Activity, trend: 'Stable' },
+          { 
+            name: 'Total Users', 
+            value: adminStats?.totalUsers.toString() || '0', 
+            icon: Users, 
+            trend: adminStats?.usersTrend || '0%' 
+          },
+          { 
+            name: 'Active Licenses', 
+            value: adminStats?.activeLicenses.toString() || '0', 
+            icon: Shield, 
+            trend: adminStats?.licensesTrend || '0' 
+          },
+          { 
+            name: 'Documents Created', 
+            value: adminStats?.documentsCreated.toString() || '0', 
+            icon: FileText, 
+            trend: adminStats?.documentsTrend || '0%' 
+          },
+          { 
+            name: 'System Health', 
+            value: `${adminStats?.systemHealth || 0}%`, 
+            icon: Activity, 
+            trend: 'Stable' 
+          },
         ].map((stat, index) => (
           <motion.div
             key={stat.name}
@@ -182,11 +165,11 @@ export default function AdminPage() {
             <div className="space-y-3">
               <Button variant="outline" className="w-full justify-between">
                 <span>View All Users</span>
-                <Badge variant="secondary">47 users</Badge>
+                <Badge variant="secondary">{adminStats?.totalUsers || 0} users</Badge>
               </Button>
               <Button variant="outline" className="w-full justify-between">
                 <span>Manage Licenses</span>
-                <Badge variant="secondary">10 active</Badge>
+                <Badge variant="secondary">{adminStats?.activeLicenses || 0} active</Badge>
               </Button>
               <Button 
                 className="w-full justify-between"
@@ -210,11 +193,9 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { action: 'New user registered', user: 'jane.smith@lawfirm.com', time: '2 hours ago', type: 'user' },
-                { action: 'License renewed', user: 'Founding Member #3', time: '5 hours ago', type: 'license' },
-                { action: 'Template updated', user: 'System', time: 'Yesterday', type: 'system' },
-              ].map((activity, index) => (
+              {(recentActivity.length > 0 ? recentActivity : [
+                { id: '1', action: 'No recent activity', user: 'System', time: 'N/A', type: 'system' as const }
+              ]).map((activity, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -330,7 +311,7 @@ export default function AdminPage() {
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="text-2xl font-bold text-blue-700">
-                      ${licensedAttorneys.reduce((sum, a) => sum + parseInt(a.monthlyRevenue.replace(/[$,]/g, '')), 0).toLocaleString()}
+                      ${licensedAttorneys.reduce((sum, a) => sum + a.monthlyRevenue, 0).toLocaleString()}
                     </div>
                     <div className="text-sm text-blue-600">Monthly Revenue</div>
                   </div>
@@ -342,7 +323,12 @@ export default function AdminPage() {
                     <div className="flex gap-2">
                       <div className="relative">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Search by name or firm..." className="pl-8 w-64" />
+                        <Input 
+                        placeholder="Search by name or firm..." 
+                        className="pl-8 w-64"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
                       </div>
                       <Button variant="outline" size="sm">
                         <Filter className="h-4 w-4" />
@@ -374,7 +360,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {licensedAttorneys.filter(attorney => attorney.status === 'Active').map((attorney) => (
+                    {filteredAttorneys.filter(attorney => attorney.status === 'Active').map((attorney) => (
                       <TableRow key={attorney.id}>
                         <TableCell>
                           <div>
@@ -390,7 +376,7 @@ export default function AdminPage() {
                         </TableCell>
                         <TableCell>{attorney.lastLogin}</TableCell>
                         <TableCell className="text-center">{attorney.casesThisMonth}</TableCell>
-                        <TableCell className="font-medium">{attorney.monthlyRevenue}</TableCell>
+                        <TableCell className="font-medium">${attorney.monthlyRevenue.toLocaleString()}</TableCell>
                         <TableCell>
                           <Badge variant={attorney.complianceScore >= 90 ? 'default' : 'secondary'}>
                             {attorney.complianceScore}%
@@ -431,7 +417,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {licensedAttorneys.filter(attorney => 
+                    {filteredAttorneys.filter(attorney => 
                       attorney.status === 'Payment Overdue' || 
                       attorney.status === 'Inactive' || 
                       attorney.complianceScore < 85
@@ -451,7 +437,7 @@ export default function AdminPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>{attorney.lastLogin}</TableCell>
-                        <TableCell className="font-medium text-red-600">{attorney.monthlyRevenue}</TableCell>
+                        <TableCell className="font-medium text-red-600">${attorney.monthlyRevenue.toLocaleString()}</TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <Button variant="outline" size="sm">
@@ -483,13 +469,16 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="text-center p-6 bg-green-50 rounded-lg border border-green-200">
                     <div className="text-3xl font-bold text-green-700">
-                      ${licensedAttorneys.reduce((sum, a) => sum + parseInt(a.monthlyRevenue.replace(/[$,]/g, '')), 0).toLocaleString()}
+                      ${licensedAttorneys.reduce((sum, a) => sum + a.monthlyRevenue, 0).toLocaleString()}
                     </div>
                     <div className="text-sm text-green-600">Total Monthly Revenue</div>
                   </div>
                   <div className="text-center p-6 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="text-3xl font-bold text-blue-700">
-                      ${Math.round(licensedAttorneys.reduce((sum, a) => sum + parseInt(a.monthlyRevenue.replace(/[$,]/g, '')), 0) / licensedAttorneys.filter(a => a.status === 'Active').length).toLocaleString()}
+                      ${licensedAttorneys.filter(a => a.status === 'Active').length > 0 
+                        ? Math.round(licensedAttorneys.reduce((sum, a) => sum + a.monthlyRevenue, 0) / licensedAttorneys.filter(a => a.status === 'Active').length).toLocaleString()
+                        : '0'
+                      }
                     </div>
                     <div className="text-sm text-blue-600">Avg Revenue Per Licensee</div>
                   </div>
@@ -513,10 +502,8 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {licensedAttorneys.sort((a, b) => 
-                      parseInt(b.monthlyRevenue.replace(/[$,]/g, '')) - parseInt(a.monthlyRevenue.replace(/[$,]/g, ''))
-                    ).map((attorney) => {
-                      const revenue = parseInt(attorney.monthlyRevenue.replace(/[$,]/g, ''))
+                    {filteredAttorneys.sort((a, b) => b.monthlyRevenue - a.monthlyRevenue).map((attorney) => {
+                      const revenue = attorney.monthlyRevenue
                       const revenuePerCase = attorney.casesThisMonth > 0 ? Math.round(revenue / attorney.casesThisMonth) : 0
                       return (
                         <TableRow key={attorney.id}>
@@ -531,7 +518,7 @@ export default function AdminPage() {
                               {attorney.licenseType}
                             </Badge>
                           </TableCell>
-                          <TableCell className="font-bold text-green-600">{attorney.monthlyRevenue}</TableCell>
+                          <TableCell className="font-bold text-green-600">${attorney.monthlyRevenue.toLocaleString()}</TableCell>
                           <TableCell className="text-center">{attorney.casesThisMonth}</TableCell>
                           <TableCell>${revenuePerCase.toLocaleString()}</TableCell>
                           <TableCell>
