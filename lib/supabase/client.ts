@@ -6,6 +6,9 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env
 
 // Only create client if we have the required environment variables
 const createSupabaseClient = () => {
+  console.log('Supabase URL:', supabaseUrl ? 'Found' : 'Missing')
+  console.log('Supabase Key:', supabaseAnonKey ? 'Found' : 'Missing')
+  
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('Supabase environment variables not found. Database features will be disabled.')
     // Return a mock client that won't throw errors
