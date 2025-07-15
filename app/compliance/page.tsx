@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AuditTable } from '@/components/AuditTable'
+import { ComplianceScorecard } from '@/components/ComplianceScorecard'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 
@@ -63,6 +65,19 @@ export default function CompliancePage() {
           Manage ethics requirements and regulatory compliance for Bitcoin estate planning.
         </p>
       </motion.div>
+
+      <Tabs defaultValue="scorecard" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="scorecard">Compliance Scorecard</TabsTrigger>
+          <TabsTrigger value="checklist">Ethics Checklist</TabsTrigger>
+          <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="scorecard">
+          <ComplianceScorecard />
+        </TabsContent>
+
+        <TabsContent value="checklist" className="space-y-6">
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Ethics Checklist */}
@@ -152,15 +167,19 @@ export default function CompliancePage() {
         </div>
       </div>
 
-      {/* Audit Trail */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Recent Compliance Activities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <AuditTable />
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="audit">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Compliance Activities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AuditTable />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </>
   )
 }
