@@ -230,6 +230,38 @@ export interface Database {
           last_updated?: string
         }
       }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: 'template' | 'training' | 'system' | 'support' | 'compliance'
+          title: string
+          message: string
+          action_url: string | null
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: 'template' | 'training' | 'system' | 'support' | 'compliance'
+          title: string
+          message: string
+          action_url?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: 'template' | 'training' | 'system' | 'support' | 'compliance'
+          title?: string
+          message?: string
+          action_url?: string | null
+          is_read?: boolean
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

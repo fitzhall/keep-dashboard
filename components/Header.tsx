@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Bell, LogOut, Settings, User } from 'lucide-react'
+import { LogOut, Settings, User } from 'lucide-react'
+import { NotificationDropdown } from './NotificationDropdown'
 
 interface HeaderProps {
   user?: {
@@ -28,10 +29,7 @@ export function Header({ user }: HeaderProps) {
           <h1 className="text-xl font-bold">KEEP Protocol</h1>
           
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-600" />
-            </Button>
+            <NotificationDropdown />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

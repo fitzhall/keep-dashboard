@@ -89,6 +89,18 @@ CREATE TABLE IF NOT EXISTS public.compliance_scores (
   last_updated TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Notifications system
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('template', 'training', 'system', 'support', 'compliance')),
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  action_url TEXT,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_course_progress_user_id ON public.course_progress(user_id);
 CREATE INDEX idx_sop_progress_user_id ON public.sop_progress(user_id);
@@ -97,6 +109,9 @@ CREATE INDEX idx_activity_log_user_id ON public.activity_log(user_id);
 CREATE INDEX idx_activity_log_created_at ON public.activity_log(created_at DESC);
 CREATE INDEX idx_support_tickets_user_id ON public.support_tickets(user_id);
 CREATE INDEX idx_support_tickets_status ON public.support_tickets(status);
+CREATE INDEX idx_notifications_user_id ON public.notifications(user_id);
+CREATE INDEX idx_notifications_created_at ON public.notifications(created_at DESC);
+CREATE INDEX idx_notifications_is_read ON public.notifications(is_read);
 
 -- Row Level Security (RLS) Policies
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
@@ -106,6 +121,7 @@ ALTER TABLE public.template_downloads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.support_tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.compliance_scores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies: Users can only access their own data
 CREATE POLICY "Users can view own profile" ON public.user_profiles
@@ -127,6 +143,9 @@ CREATE POLICY "Users can view own tickets" ON public.support_tickets
   FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
 
 CREATE POLICY "Users can view own compliance" ON public.compliance_scores
+  FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
+
+CREATE POLICY "Users can view own notifications" ON public.notifications
   FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
 
 -- Function to generate ticket numbers
