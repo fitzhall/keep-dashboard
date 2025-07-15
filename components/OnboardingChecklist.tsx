@@ -94,22 +94,22 @@ export function OnboardingChecklist() {
 
   const calculateProgress = () => {
     if (tasks.length === 0) return 0
-    const completedTasks = tasks.filter(t => t.completed).length
+    const completedTasks = tasks.filter((t: any) => t.completed).length
     return Math.round((completedTasks / tasks.length) * 100)
   }
 
   const getDayStatus = (dayNumber: number) => {
-    const dayTasks = tasks.filter(t => t.day_number === dayNumber)
+    const dayTasks = tasks.filter((t: any) => t.day_number === dayNumber)
     if (dayTasks.length === 0) return 'locked'
     
-    const completedCount = dayTasks.filter(t => t.completed).length
+    const completedCount = dayTasks.filter((t: any) => t.completed).length
     if (completedCount === dayTasks.length) return 'completed'
     if (completedCount > 0) return 'in-progress'
     
     // Check if previous day is completed
     if (dayNumber > 1) {
-      const prevDayTasks = tasks.filter(t => t.day_number === dayNumber - 1)
-      const prevCompleted = prevDayTasks.filter(t => t.completed).length
+      const prevDayTasks = tasks.filter((t: any) => t.day_number === dayNumber - 1)
+      const prevCompleted = prevDayTasks.filter((t: any) => t.completed).length
       if (prevCompleted < prevDayTasks.length) return 'locked'
     }
     
@@ -180,7 +180,7 @@ export function OnboardingChecklist() {
           const dayMeta = dayMetadata[dayNumber - 1]
           const DayIcon = dayMeta.icon
           const isExpanded = expandedDays.includes(dayNumber)
-          const completedTasks = dayTasks.filter(t => t.completed).length
+          const completedTasks = dayTasks.filter((t: any) => t.completed).length
           const totalTasks = dayTasks.length
           const dayProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
           const status = getDayStatus(dayNumber)
@@ -228,7 +228,7 @@ export function OnboardingChecklist() {
                   <CollapsibleContent>
                     <CardContent className="pt-0">
                       <div className="space-y-3">
-                        {dayTasks.map((task, taskIndex) => (
+                        {dayTasks.map((task: any, taskIndex: number) => (
                           <motion.div
                             key={task.task_id}
                             initial={{ opacity: 0, x: -20 }}
