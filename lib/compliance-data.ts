@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client'
+import { supabase, getServiceSupabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/types'
 
 type ComplianceCategory = Database['public']['Tables']['compliance_categories']['Row']
@@ -325,32 +325,39 @@ export async function getEthicsChecklist(userId: string): Promise<EthicsChecklis
 
 // Toggle ethics checklist item
 export async function toggleEthicsChecklistItem(userId: string, itemId: number) {
-  // First get the current state
-  const { data: current } = await supabase
-    .from('ethics_checklist')
-    .select('completed')
-    .eq('user_id', userId)
-    .eq('item_id', itemId)
-    .single()
+  try {
+    const serviceSupabase = getServiceSupabase()
+    
+    // First get the current state
+    const { data: current } = await serviceSupabase
+      .from('ethics_checklist')
+      .select('completed')
+      .eq('user_id', userId)
+      .eq('item_id', itemId)
+      .single()
 
-  if (!current) return
+    if (!current) return
 
-  const { error } = await supabase
-    .from('ethics_checklist')
-    .update({
-      completed: !current.completed,
-      completed_at: !current.completed ? new Date().toISOString() : null
-    })
-    .eq('user_id', userId)
-    .eq('item_id', itemId)
+    const { error } = await serviceSupabase
+      .from('ethics_checklist')
+      .update({
+        completed: !current.completed,
+        completed_at: !current.completed ? new Date().toISOString() : null
+      })
+      .eq('user_id', userId)
+      .eq('item_id', itemId)
 
-  if (error) {
-    console.error('Error toggling ethics checklist item:', error)
+    if (error) {
+      console.error('Error toggling ethics checklist item:', error)
+      throw error
+    }
+
+    // Update the ethics category score
+    await updateEthicsCategoryScore(userId)
+  } catch (error) {
+    console.error('Error in toggleEthicsChecklistItem:', error)
     throw error
   }
-
-  // Update the ethics category score
-  await updateEthicsCategoryScore(userId)
 }
 
 // Update ethics category score based on checklist completion
@@ -396,27 +403,34 @@ export async function getOnboardingTasks(userId: string): Promise<OnboardingTask
 
 // Toggle onboarding task
 export async function toggleOnboardingTask(userId: string, taskId: string) {
-  // First get the current state
-  const { data: current } = await supabase
-    .from('onboarding_tasks')
-    .select('completed')
-    .eq('user_id', userId)
-    .eq('task_id', taskId)
-    .single()
+  try {
+    const serviceSupabase = getServiceSupabase()
+    
+    // First get the current state
+    const { data: current } = await serviceSupabase
+      .from('onboarding_tasks')
+      .select('completed')
+      .eq('user_id', userId)
+      .eq('task_id', taskId)
+      .single()
 
-  if (!current) return
+    if (!current) return
 
-  const { error } = await supabase
-    .from('onboarding_tasks')
-    .update({
-      completed: !current.completed,
-      completed_at: !current.completed ? new Date().toISOString() : null
-    })
-    .eq('user_id', userId)
-    .eq('task_id', taskId)
+    const { error } = await serviceSupabase
+      .from('onboarding_tasks')
+      .update({
+        completed: !current.completed,
+        completed_at: !current.completed ? new Date().toISOString() : null
+      })
+      .eq('user_id', userId)
+      .eq('task_id', taskId)
 
-  if (error) {
-    console.error('Error toggling onboarding task:', error)
+    if (error) {
+      console.error('Error toggling onboarding task:', error)
+      throw error
+    }
+  } catch (error) {
+    console.error('Error in toggleOnboardingTask:', error)
     throw error
   }
 }
