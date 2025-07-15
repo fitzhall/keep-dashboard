@@ -476,7 +476,7 @@ export async function generateComplianceReport(
 }
 
 // Calculate overall compliance score
-export async function calculateOverallScore(categories: ComplianceCategory[]): number {
+export function calculateOverallScore(categories: ComplianceCategory[]): number {
   if (categories.length === 0) return 0
   const totalScore = categories.reduce((sum, cat) => sum + cat.score, 0)
   return Math.round(totalScore / categories.length)
