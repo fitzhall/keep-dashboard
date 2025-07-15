@@ -266,6 +266,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
           name: user.name || user.nickname || 'Test User',
           avatar_url: user.picture || null,
           role: 'attorney',
+          firm: 'Johnson Estate Planning',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
