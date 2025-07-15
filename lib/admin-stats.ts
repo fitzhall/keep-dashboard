@@ -107,7 +107,7 @@ export async function getLicensedAttorneys(): Promise<LicensedAttorney[]> {
     if (error) throw error
 
     // Transform the data into the format we need
-    const attorneys: LicensedAttorney[] = (users || []).map(user => {
+    const attorneys: LicensedAttorney[] = (users || []).map((user: any) => {
       // Get last login from activity log
       const lastActivity = user.activity_log?.[0]?.created_at
       const lastLogin = lastActivity ? new Date(lastActivity).toISOString().split('T')[0] : null
@@ -179,7 +179,7 @@ export async function getRecentActivity(limit: number = 10): Promise<RecentActiv
 
     if (error) throw error
 
-    return (activities || []).map(activity => {
+    return (activities || []).map((activity: any) => {
       const timeAgo = getTimeAgo(new Date(activity.created_at))
       
       let action = activity.title
