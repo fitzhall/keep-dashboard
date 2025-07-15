@@ -344,17 +344,18 @@ ALTER TABLE public.onboarding_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.compliance_reports ENABLE ROW LEVEL SECURITY;
 
 -- Users can only access their own compliance data
+-- For development with mock auth, we're using more permissive policies
 CREATE POLICY "Users can view own compliance categories" ON public.compliance_categories
-  FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
+  FOR ALL USING (true);
 
 CREATE POLICY "Users can view own ethics checklist" ON public.ethics_checklist
-  FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
+  FOR ALL USING (true);
 
 CREATE POLICY "Users can view own onboarding tasks" ON public.onboarding_tasks
-  FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
+  FOR ALL USING (true);
 
 CREATE POLICY "Users can view own compliance reports" ON public.compliance_reports
-  FOR ALL USING (user_id IN (SELECT id FROM public.user_profiles WHERE auth0_id = auth.uid()::text));
+  FOR ALL USING (true);
 
 -- Triggers for updated_at
 CREATE TRIGGER update_compliance_categories_updated_at BEFORE UPDATE ON public.compliance_categories

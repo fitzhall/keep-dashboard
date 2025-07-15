@@ -95,10 +95,16 @@ export function ComplianceScorecard() {
   }, [userProfile])
 
   async function loadComplianceData() {
-    if (!userProfile?.id) return
+    if (!userProfile?.id) {
+      console.log('No user profile ID available')
+      setIsLoading(false)
+      return
+    }
 
     try {
+      console.log('Loading compliance data for user:', userProfile.id)
       const data = await getComplianceCategories(userProfile.id)
+      console.log('Compliance categories loaded:', data)
       setCategories(data)
       const score = calculateOverallScore(data)
       setOverallScore(score)
