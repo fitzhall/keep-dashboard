@@ -1,13 +1,15 @@
-import { auth0 } from '@/lib/auth0'
-import { redirect } from 'next/navigation'
+'use client'
 
-export default async function HomePage() {
-  const session = await auth0.getSession()
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function HomePage() {
+  const router = useRouter()
   
-  // Redirect authenticated users to dashboard, others to login
-  if (session) {
-    redirect('/dashboard')
-  } else {
-    redirect('/login')
-  }
+  useEffect(() => {
+    // For now, always redirect to dashboard since we're using mock auth
+    router.push('/dashboard')
+  }, [router])
+  
+  return null
 }
