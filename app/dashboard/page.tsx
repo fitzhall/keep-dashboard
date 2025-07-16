@@ -33,8 +33,13 @@ export default function DashboardPage() {
   const { progress, userProfile } = useUserProgress()
   
   // Determine license tier (mock data - would come from user profile)
-  const licenseTier = 'Premier' // Could be 'Core', 'Premier', or 'Premier+'
-  const licensePrice = licenseTier === 'Core' ? 12000 : licenseTier === 'Premier' ? 18000 : 30000
+  const licenseTier = 'Premier' as const
+  const licensePrices = {
+    'Core': 12000,
+    'Premier': 18000,
+    'Premier+': 30000
+  } as const
+  const licensePrice = licensePrices[licenseTier]
   
   // Calculate metrics
   const completedCourses = progress.courses.filter(c => c.status === 'completed').length
@@ -125,7 +130,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-green-600">
-              {licenseTier === 'Core' ? '48hr' : licenseTier === 'Premier' ? '24hr' : 'Same Day'}
+              24hr
             </div>
             <p className="text-xs text-gray-500 mt-1">Expert hotline active</p>
           </CardContent>

@@ -24,7 +24,7 @@ import {
 import { cn } from '@/lib/utils'
 
 // Mock license tier - would come from user profile
-const licenseTier = 'Premier' // 'Core', 'Premier', or 'Premier+'
+const licenseTier = 'Premier' as const
 
 // Support tiers based on license
 const supportTiers = {
@@ -149,11 +149,9 @@ export default function HotlinePage() {
                 </div>
               </div>
             </div>
-            {licenseTier !== 'Premier+' && (
-              <Button variant="outline" size="sm">
-                Upgrade License
-              </Button>
-            )}
+            <Button variant="outline" size="sm">
+              Upgrade License
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -208,9 +206,7 @@ export default function HotlinePage() {
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="normal">Normal</SelectItem>
                         <SelectItem value="high">High</SelectItem>
-                        {licenseTier === 'Premier+' && (
-                          <SelectItem value="urgent">Urgent</SelectItem>
-                        )}
+                        <SelectItem value="urgent">Urgent (Premier+ only)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -288,29 +284,23 @@ export default function HotlinePage() {
             </CardContent>
           </Card>
 
-          {/* Emergency Contact */}
-          {licenseTier === 'Premier+' && (
-            <Card className="border-orange-200 bg-orange-50">
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  Priority Hotline
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 mb-3">
-                  As a Premier+ member, you have access to our priority hotline for urgent matters.
-                </p>
-                <Button className="w-full" variant="default">
-                  <Phone className="mr-2 h-4 w-4" />
-                  Call Priority Hotline
-                </Button>
-                <p className="text-xs text-gray-500 text-center mt-2">
-                  Available 9 AM - 6 PM EST
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          {/* Emergency Contact - Premier+ Feature */}
+          <Card className="border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                License Benefits
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-3">
+                Your {licenseTier} license includes {currentTier.channels.join(', ')} with {currentTier.responseTime} response time.
+              </p>
+              <Button className="w-full" variant="outline" size="sm">
+                View All Benefits
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* Support Hours */}
           <Card>

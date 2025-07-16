@@ -272,7 +272,7 @@ export default function SettingsPage() {
                   <span className="text-muted-foreground">Current License</span>
                   <div className="flex items-center gap-2">
                     <Badge 
-                      variant={licenseInfo.tier === 'Premier+' ? 'default' : licenseInfo.tier === 'Premier' ? 'secondary' : 'outline'}
+                      variant="secondary"
                       className="font-semibold"
                     >
                       {licenseInfo.tier}
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                             <div>
                               <h5 className="font-semibold flex items-center gap-2">
                                 {tier}
-                                {tier === 'Premier+' && <Badge variant="default" className="text-xs">Best Value</Badge>}
+                                {tier === 'Premier+' ? <Badge variant="default" className="text-xs">Best Value</Badge> : null}
                               </h5>
                               <p className="text-sm text-muted-foreground">
                                 ${info.price.toLocaleString()}/year
