@@ -9,94 +9,219 @@ import { Download, Search, FileText, Shield, Users, BookOpen, Scale, CreditCard 
 import { useState } from 'react'
 import { useUserProgress } from '@/contexts/UserProgressContext'
 
-const templates = [
+interface Template {
+  id: number
+  name: string
+  description: string
+  category: string
+  filename: string
+  size: string
+  downloads: number
+  updated: string
+  icon: any
+  premium: boolean
+  tierRestriction?: string
+}
+
+const templates: Template[] = [
   {
     id: 1,
-    name: 'Bitcoin Trust Template',
-    description: 'Comprehensive irrevocable trust agreement for Bitcoin holdings',
+    name: 'KEEP Engagement Letter Template',
+    description: 'Professional engagement letter for KEEP Framework implementation',
     category: 'Legal Documents',
-    filename: 'bitcoin-trust-template.md',
-    size: '45 KB',
+    filename: 'keep-engagement-letter-template.md',
+    size: '120 KB',
     downloads: 1247,
-    updated: '2024-01-10',
+    updated: '2025-07-03',
     icon: Scale,
     premium: false
   },
   {
     id: 2,
-    name: 'Client Intake Questionnaire',
-    description: 'Comprehensive assessment form for Bitcoin estate planning clients',
-    category: 'Assessment Tools',
-    filename: 'client-intake-questionnaire.md',
-    size: '32 KB',
+    name: 'KEEP Framework License Agreement',
+    description: 'Complete licensing agreement for KEEP Framework usage',
+    category: 'Legal Documents',
+    filename: 'keep-framework-license-agreement.md',
+    size: '460 KB',
     downloads: 892,
-    updated: '2024-01-08',
-    icon: Users,
+    updated: '2025-07-03',
+    icon: FileText,
     premium: false
   },
   {
     id: 3,
-    name: 'Compliance Checklist',
-    description: 'Step-by-step compliance verification for Bitcoin estate planning',
-    category: 'Compliance',
-    filename: 'compliance-checklist.md',
-    size: '28 KB',
+    name: 'KEEP Ethics Checklist Template',
+    description: 'Comprehensive ethics compliance verification for Bitcoin estate planning',
+    category: 'Legal Documents',
+    filename: 'keep-ethics-checklist-template.md',
+    size: '37 KB',
     downloads: 654,
-    updated: '2024-01-12',
+    updated: '2025-07-03',
     icon: Shield,
     premium: false
   },
   {
     id: 4,
-    name: 'Beneficiary Designation Form',
-    description: 'Formal designation document for Bitcoin beneficiaries',
-    category: 'Legal Documents',
-    filename: 'beneficiary-designation.md',
-    size: '18 KB',
+    name: 'Bitcoin Multisig Design Worksheet',
+    description: 'Technical worksheet for designing multi-signature wallet configurations',
+    category: 'Assessment Tools',
+    filename: 'bitcoin-multisig-design-worksheet.md',
+    size: '439 KB',
     downloads: 543,
-    updated: '2024-01-05',
-    icon: FileText,
-    premium: true
+    updated: '2025-07-03',
+    icon: Users,
+    premium: false
   },
   {
     id: 5,
-    name: 'Family Recovery Guide',
-    description: 'Step-by-step instructions for beneficiaries to access Bitcoin',
-    category: 'Client Education',
-    filename: 'family-recovery-guide.md',
-    size: '25 KB',
+    name: 'Client Risk Assessment Template',
+    description: 'Comprehensive risk assessment form for Bitcoin estate planning clients',
+    category: 'Assessment Tools',
+    filename: 'client-risk-assessment-template.md',
+    size: 'TBD KB',
     downloads: 432,
-    updated: '2024-01-07',
-    icon: BookOpen,
+    updated: '2025-07-03',
+    icon: Users,
     premium: false
   },
   {
     id: 6,
-    name: 'Multi-Signature Setup Guide',
-    description: 'Technical guide for implementing multi-signature wallets',
-    category: 'Technical Guides',
-    filename: 'multisig-setup-guide.md',
+    name: 'Probate Proofing SOP Template',
+    description: 'Standard operating procedures for probate-proofing Bitcoin estates',
+    category: 'Compliance',
+    filename: 'probate-proofing-sop-template.md',
     size: '38 KB',
     downloads: 321,
-    updated: '2024-01-09',
+    updated: '2025-07-03',
     icon: Shield,
-    premium: true
+    premium: false
   },
   {
     id: 7,
-    name: 'Fee Agreement Template',
-    description: 'Bitcoin estate planning engagement agreement template',
-    category: 'Business',
-    filename: 'fee-agreement-template.md',
-    size: '22 KB',
+    name: 'Probate Proofing Implementation Guide',
+    description: 'Complete guide for implementing probate-proofing procedures',
+    category: 'Compliance',
+    filename: 'probate-proofing-implementation-guide.md',
+    size: '617 KB',
     downloads: 234,
-    updated: '2024-01-11',
-    icon: CreditCard,
+    updated: '2025-07-03',
+    icon: Shield,
     premium: false
+  },
+  {
+    id: 8,
+    name: 'Quality Control Submission Form',
+    description: 'Form for quality control review and compliance verification',
+    category: 'Compliance',
+    filename: 'quality-control-submission-form.md',
+    size: 'TBD KB',
+    downloads: 189,
+    updated: '2025-07-03',
+    icon: Shield,
+    premium: false
+  },
+  {
+    id: 9,
+    name: 'Bitcoin Beneficiary Instructions Guide',
+    description: 'Step-by-step instructions for beneficiaries to access Bitcoin inheritance',
+    category: 'Client Education',
+    filename: 'bitcoin-beneficiary-instructions-guide.md',
+    size: '557 KB',
+    downloads: 876,
+    updated: '2025-07-03',
+    icon: BookOpen,
+    premium: false
+  },
+  {
+    id: 10,
+    name: 'KEEP Framework Client Guide',
+    description: 'Comprehensive guide explaining the KEEP Framework to clients',
+    category: 'Client Education',
+    filename: 'keep-framework-client-guide.md',
+    size: '588 KB',
+    downloads: 654,
+    updated: '2025-07-03',
+    icon: BookOpen,
+    premium: false
+  },
+  {
+    id: 11,
+    name: 'Bitcoin Trust Governance Playbook',
+    description: 'Complete playbook for Bitcoin trust governance and management',
+    category: 'Technical Guides',
+    filename: 'bitcoin-trust-governance-playbook.md',
+    size: '668 KB',
+    downloads: 421,
+    updated: '2025-07-03',
+    icon: Shield,
+    premium: false
+  },
+  {
+    id: 12,
+    name: 'Enhanced Client Workflows Guide',
+    description: 'Advanced workflows for Bitcoin estate planning client engagement',
+    category: 'Technical Guides',
+    filename: 'enhanced-client-workflows-guide.md',
+    size: '477 KB',
+    downloads: 332,
+    updated: '2025-07-03',
+    icon: Shield,
+    premium: false
+  },
+  {
+    id: 13,
+    name: 'KEEP Framework Executive Summary',
+    description: 'High-level overview of the KEEP Framework methodology',
+    category: 'Technical Guides',
+    filename: 'keep-framework-executive-summary.md',
+    size: '414 KB',
+    downloads: 765,
+    updated: '2025-07-03',
+    icon: FileText,
+    premium: false
+  },
+  {
+    id: 14,
+    name: 'Billable Hours Upside Calculator',
+    description: 'Calculate potential revenue from Bitcoin estate planning services',
+    category: 'Business Development',
+    filename: 'billable-hours-upside-calculator.md',
+    size: '37 KB',
+    downloads: 234,
+    updated: '2025-07-03',
+    icon: CreditCard,
+    premium: true,
+    tierRestriction: 'Premier+ Only'
+  },
+  {
+    id: 15,
+    name: 'Bitcoin Estate Planning Sales Playbook',
+    description: 'Complete sales strategies for Bitcoin estate planning services',
+    category: 'Business Development',
+    filename: 'bitcoin-estate-planning-sales-playbook.md',
+    size: '437 KB',
+    downloads: 189,
+    updated: '2025-07-03',
+    icon: CreditCard,
+    premium: true,
+    tierRestriction: 'Premier+ Only'
+  },
+  {
+    id: 16,
+    name: 'Practice Marketing Templates',
+    description: 'Marketing materials for promoting Bitcoin estate planning services',
+    category: 'Business Development',
+    filename: 'practice-marketing-templates.md',
+    size: 'TBD KB',
+    downloads: 156,
+    updated: '2025-07-03',
+    icon: CreditCard,
+    premium: true,
+    tierRestriction: 'Premier Only'
   }
 ]
 
-const categories = ['All', 'Legal Documents', 'Assessment Tools', 'Compliance', 'Client Education', 'Technical Guides', 'Business']
+const categories = ['All', 'Legal Documents', 'Assessment Tools', 'Compliance', 'Client Education', 'Technical Guides', 'Business Development']
 
 export default function TemplatesPage() {
   const { progress, dispatch } = useUserProgress()
@@ -203,7 +328,7 @@ export default function TemplatesPage() {
                         </Badge>
                         {template.premium && (
                           <Badge variant="default" className="text-xs">
-                            Premium
+                            {template.tierRestriction || 'Premium'}
                           </Badge>
                         )}
                       </div>
@@ -229,7 +354,7 @@ export default function TemplatesPage() {
                   variant={isDownloaded(template.filename) ? "secondary" : "default"}
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  {template.premium ? 'Premium Only' : isDownloaded(template.filename) ? 'Downloaded' : 'Download'}
+                  {template.premium ? (template.tierRestriction || 'Premium Only') : isDownloaded(template.filename) ? 'Downloaded' : 'Download'}
                 </Button>
               </CardContent>
             </Card>

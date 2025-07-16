@@ -7,16 +7,56 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 
 const phases = [
-  { id: 1, name: 'Intake', description: 'Initial client assessment and Bitcoin holdings evaluation' },
-  { id: 2, name: 'Custody Design', description: 'Design secure custody arrangements' },
-  { id: 3, name: 'Drafting', description: 'Create estate planning documents' },
-  { id: 4, name: 'Vault Build', description: 'Implement custody solutions' },
-  { id: 5, name: 'Delivery', description: 'Present completed plan to client' },
-  { id: 6, name: 'Client Education', description: 'Educate client on plan maintenance' },
-  { id: 7, name: 'Key Rotation', description: 'Manage security updates' },
-  { id: 8, name: 'Compliance Check', description: 'Ensure ongoing compliance' },
-  { id: 9, name: 'Documentation', description: 'Maintain comprehensive records' },
-  { id: 10, name: 'Maintenance', description: 'Ongoing plan updates' },
+  { 
+    id: 1, 
+    name: 'Client Intake & Assessment', 
+    description: 'Complete Bitcoin asset assessment using our structured intake process. Deliverables: Risk exposure audit, technical sophistication assessment, family dynamics evaluation. Tools: Multisig Design Worksheet, Client Assessment Template.'
+  },
+  { 
+    id: 2, 
+    name: 'Custody Architecture Design', 
+    description: 'Design secure 3-of-5 multisig architecture with appropriate co-signer selection. Deliverables: Custody design document, co-signer agreements, security protocols. Tools: Governance Playbook, Technical Implementation Guide.'
+  },
+  { 
+    id: 3, 
+    name: 'Legal Document Drafting', 
+    description: 'Draft Bitcoin-specific trust provisions and estate documents. Deliverables: Trust amendments, will provisions, beneficiary forms. Tools: Enhanced Templates, Clause Library, State Law Riders.'
+  },
+  { 
+    id: 4, 
+    name: 'Custody Solution Implementation', 
+    description: 'Build secure multisig vaults and establish key ceremonies. Deliverables: Configured hardware wallets, key shard distribution, backup protocols. Tools: Hardware Security Guide, Key Ceremony Checklist.'
+  },
+  { 
+    id: 5, 
+    name: 'Plan Delivery & Review', 
+    description: 'Present comprehensive Bitcoin estate plan with technical demonstrations. Deliverables: Complete plan binder, access instructions, emergency protocols. Tools: Client Presentation Template, Delivery Checklist.'
+  },
+  { 
+    id: 6, 
+    name: 'Beneficiary Education Program', 
+    description: 'Train beneficiaries on Bitcoin custody and inheritance procedures. Deliverables: Training documentation, technical guides, practice transactions. Tools: Education Modules, Technical Workshops.'
+  },
+  { 
+    id: 7, 
+    name: 'Security Key Rotation', 
+    description: 'Execute periodic key rotation and security audits for ongoing protection. Deliverables: New key sets, updated access instructions, audit reports. Tools: Rotation Protocol, Security Audit Template.'
+  },
+  { 
+    id: 8, 
+    name: 'Regulatory Compliance Review', 
+    description: 'Monitor evolving Bitcoin regulations and update plans accordingly. Deliverables: Compliance assessments, regulatory updates, amended documents. Tools: Compliance Tracker, Regulatory Alert System.'
+  },
+  { 
+    id: 9, 
+    name: 'Documentation & Record Keeping', 
+    description: 'Maintain comprehensive records of all Bitcoin custody arrangements. Deliverables: Transaction logs, custody verification, audit trails. Tools: Documentation System, Record Management Protocol.'
+  },
+  { 
+    id: 10, 
+    name: 'Ongoing Plan Maintenance', 
+    description: 'Provide continuous monitoring and updates to Bitcoin estate plans. Deliverables: Annual reviews, value assessments, strategy adjustments. Tools: Maintenance Schedule, Update Protocols.'
+  },
 ]
 
 export default function SOPPage() {

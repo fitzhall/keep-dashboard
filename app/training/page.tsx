@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -13,493 +12,471 @@ import {
   Award, 
   Clock, 
   PlayCircle, 
-  CheckCircle,
+  CheckCircle2,
   FileText,
   Download,
-  ExternalLink,
   Users,
   Shield,
-  Rocket,
   AlertCircle,
-  Lock
+  Lock,
+  Star,
+  ArrowRight,
+  Calendar,
+  Video
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useUserProgress } from '@/contexts/UserProgressContext'
+import { cn } from '@/lib/utils'
 
-// KEEP Protocol Training Modules (Non-CLE)
-const keepTrainingModules = [
+// Primary CLE Course
+const primaryCLECourse = {
+  id: 'bitcoin-inheritance-cle',
+  title: 'Bitcoin Inheritance: Practical Drafting & Risk-Mitigation for Estate-Planning Professionals',
+  description: 'Comprehensive training on Bitcoin estate planning with CLE credit',
+  duration: '4.5 hours',
+  credits: 4.5,
+  ethicsCredits: 0.25,
+  segments: [
+    {
+      id: 'segment-1',
+      title: 'Segment 1: The $471B Problem - Market Overview & Legal Challenges',
+      duration: '1.25 hours',
+      status: 'completed',
+      topics: [
+        'Bitcoin inheritance statistics and trends',
+        'Common failure points in digital asset transfer',
+        'Legal precedents and case studies',
+        'Risk assessment framework'
+      ]
+    },
+    {
+      id: 'segment-2', 
+      title: 'Segment 2: Regulatory Landscape - Current Law & Compliance Requirements',
+      duration: '1 hour',
+      status: 'in-progress',
+      topics: [
+        'State-by-state Bitcoin regulations',
+        'RUFADAA implementation',
+        'ABA Model Rules compliance',
+        'Malpractice insurance considerations'
+      ],
+      hasEthicsCredit: true
+    },
+    {
+      id: 'segment-3',
+      title: 'Segment 3: KEEP Framework - Step-by-Step Implementation',
+      duration: '1.5 hours',
+      status: 'pending',
+      topics: [
+        '10-Phase SOP walkthrough',
+        'Template integration',
+        'Client communication protocols',
+        'Documentation requirements'
+      ]
+    },
+    {
+      id: 'segment-4',
+      title: 'Segment 4: Advanced Strategies - Complex Family Structures',
+      duration: '45 mins',
+      status: 'pending',
+      topics: [
+        'Multi-generational planning',
+        'Blended family considerations',
+        'International beneficiaries',
+        'Special needs trusts with Bitcoin'
+      ]
+    }
+  ],
+  progress: 35
+}
+
+// 5-Day Implementation Modules
+const implementationModules = [
   {
-    id: 'keep-101',
-    title: 'KEEP Protocol Fundamentals',
-    description: 'Understanding the core principles and philosophy',
-    duration: '45 mins',
-    modules: [
-      'Why Bitcoin Estate Planning Matters',
-      'The KEEP Protocol Framework',
-      'Your Role as a KEEP Attorney',
-      'Client Communication Best Practices'
-    ],
-    status: 'available',
-    progress: 0
-  },
-  {
-    id: 'sop-mastery',
-    title: 'Mastering the 10-Phase SOP',
-    description: 'Deep dive into each phase with practical examples',
+    id: 'day-1-framework',
+    title: 'Day 1: Framework Mastery',
+    description: 'Complete Framework Executive Summary',
     duration: '2 hours',
     modules: [
-      'Phase 1-2: Intake & Custody Design',
-      'Phase 3-4: Drafting & Vault Build',
-      'Phase 5-6: Delivery & Education',
-      'Phase 7-10: Maintenance & Compliance'
+      'KEEP Protocol Overview',
+      'Legal Framework Understanding',
+      'Risk Mitigation Strategies',
+      'Implementation Roadmap'
     ],
-    status: 'available',
-    progress: 0
+    status: 'completed',
+    progress: 100
   },
   {
-    id: 'tools-tech',
-    title: 'Tools & Technology',
-    description: 'Using hardware wallets, multisig, and verification tools',
-    duration: '90 mins',
+    id: 'day-2-templates',
+    title: 'Day 2: Template Integration',
+    description: 'Integrate Engagement Letter Template',
+    duration: '1.5 hours',
     modules: [
-      'Hardware Wallet Setup & Security',
-      'Multisig Configuration',
-      'Address Verification',
-      'Recovery Testing Procedures'
+      'Template Customization',
+      'Firm Branding Integration',
+      'Compliance Verification',
+      'Practice Management Setup'
     ],
-    status: 'available',
-    progress: 0
+    status: 'completed',
+    progress: 100
   },
   {
-    id: 'compliance-docs',
-    title: 'Documentation & Compliance',
-    description: 'Maintaining proper records and meeting requirements',
-    duration: '1 hour',
+    id: 'day-3-assessment',
+    title: 'Day 3: Risk Assessment Setup',
+    description: 'Setup Risk Assessment Process',
+    duration: '2.5 hours',
     modules: [
-      'Required Documentation',
-      'State-Specific Requirements',
-      'Audit Preparation',
-      'Best Practices for Record Keeping'
+      'Client Intake Workflow',
+      'Risk Assessment Tools',
+      'Documentation Protocols',
+      'Compliance Checklists'
     ],
-    status: 'available',
-    progress: 0
+    status: 'in-progress',
+    progress: 65
   },
   {
-    id: 'advanced-scenarios',
-    title: 'Advanced Client Scenarios',
-    description: 'Complex cases and special situations',
-    duration: '90 mins',
+    id: 'day-4-workflows',
+    title: 'Day 4: Workflow Implementation',
+    description: 'Configure Client Workflows',
+    duration: '3 hours',
     modules: [
-      'High Net Worth Estates',
-      'Business Bitcoin Holdings',
-      'International Considerations',
-      'Special Needs Planning'
+      'Phase-by-Phase Workflows',
+      'Team Role Assignments',
+      'Communication Templates',
+      'Progress Tracking Setup'
     ],
     status: 'locked',
-    progress: 0,
-    requirement: 'Complete fundamentals first'
+    progress: 0
+  },
+  {
+    id: 'day-5-marketing',
+    title: 'Day 5: Practice Integration',
+    description: 'Prepare Marketing Materials',
+    duration: '2 hours',
+    modules: [
+      'Marketing Template Customization',
+      'Website Integration',
+      'Client Education Materials',
+      'Launch Planning'
+    ],
+    status: 'locked',
+    progress: 0
   }
 ]
 
-// Quick start resources
-const quickStartResources = [
+// Quick Resources
+const quickResources = [
   {
-    title: 'KEEP Protocol Whitepaper',
-    description: 'The foundational document explaining our approach',
-    icon: FileText,
-    action: 'Download PDF'
+    title: 'CLE Certificate Generator',
+    description: 'Generate your certificate after completion',
+    icon: Award,
+    action: 'Generate',
+    available: false
   },
   {
     title: 'Implementation Checklist',
-    description: 'Step-by-step guide for your first client',
-    icon: CheckCircle,
-    action: 'View Checklist'
+    description: 'Track your 5-day progress',
+    icon: FileText,
+    action: 'Download',
+    available: true
   },
   {
-    title: 'Video: First Client Walkthrough',
-    description: '30-minute video showing complete process',
+    title: 'Training Slides',
+    description: 'PowerPoint deck for team training',
     icon: PlayCircle,
-    action: 'Watch Now'
+    action: 'Download',
+    available: true
   },
   {
-    title: 'Office Hours Recording',
-    description: 'Latest Q&A session with KEEP experts',
-    icon: Users,
-    action: 'View Recording'
+    title: 'Office Hours Schedule',
+    description: 'Live Q&A with KEEP experts',
+    icon: Calendar,
+    action: 'View Schedule',
+    available: true
   }
 ]
 
 export default function TrainingPage() {
-  const [selectedModule, setSelectedModule] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('cle-course')
   const router = useRouter()
   const { progress } = useUserProgress()
 
-  // Calculate overall training progress
-  const completedCourses = progress.courses.filter(c => c.status === 'completed').length
-  const totalCourses = progress.courses.length
-  const cleProgress = totalCourses > 0 ? (completedCourses / totalCourses) * 100 : 0
+  const handleStartTraining = (moduleId: string) => {
+    // In a real app, this would navigate to the actual training content
+    router.push(`/training/${moduleId}`)
+  }
 
-  const completedKeepModules = keepTrainingModules.filter(m => m.progress === 100).length
-  const totalKeepModules = keepTrainingModules.filter(m => m.status !== 'locked').length
-  const keepProgress = totalKeepModules > 0 ? (completedKeepModules / totalKeepModules) * 100 : 0
+  // Calculate progress
+  const completedDays = implementationModules.filter(m => m.status === 'completed').length
+  const implementationProgress = (completedDays / implementationModules.length) * 100
 
   return (
-    <>
-      <motion.div 
-        className="mb-8"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-3xl font-bold tracking-tight">Training Center</h1>
-        <p className="text-muted-foreground">
-          Complete your KEEP Protocol certification and earn CLE credits.
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-900">Training Center</h1>
+        <p className="text-gray-600 mt-1">
+          Complete your KEEP Protocol certification and earn CLE credits
         </p>
-      </motion.div>
-
-      {/* Training Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16" />
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5" />
-                    CLE Training
-                  </CardTitle>
-                  <CardDescription>
-                    Earn continuing legal education credits
-                  </CardDescription>
-                </div>
-                <Badge variant="secondary">
-                  {completedCourses} of {totalCourses} complete
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Progress value={cleProgress} className="mb-4" />
-              <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                <span>{cleProgress.toFixed(0)}% Complete</span>
-                <span>{16 - completedCourses * 4} CLE hours remaining</span>
-              </div>
-              <Button 
-                className="w-full" 
-                onClick={() => router.push('/cle')}
-              >
-                Continue CLE Training
-                <ExternalLink className="ml-2 h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full -mr-16 -mt-16" />
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    KEEP Training
-                  </CardTitle>
-                  <CardDescription>
-                    Master the KEEP Protocol system
-                  </CardDescription>
-                </div>
-                <Badge variant="secondary">
-                  {completedKeepModules} of {totalKeepModules} complete
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Progress value={keepProgress} className="mb-4" />
-              <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
-                <span>{keepProgress.toFixed(0)}% Complete</span>
-                <span>~6 hours remaining</span>
-              </div>
-              <Button className="w-full" variant="default">
-                Continue KEEP Training
-                <PlayCircle className="ml-2 h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
 
-      {/* Quick Start Section */}
-      <Alert className="mb-8">
-        <Rocket className="h-4 w-4" />
-        <AlertDescription className="flex items-center justify-between">
-          <span>
-            <strong>New to KEEP?</strong> Start with the fundamentals module to understand the core concepts.
-          </span>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setSelectedModule('keep-101')}
-          >
-            Start Fundamentals
-          </Button>
-        </AlertDescription>
-      </Alert>
+      {/* Progress Overview */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">CLE Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">{primaryCLECourse.progress}%</div>
+            <Progress value={primaryCLECourse.progress} className="mt-2 h-1" />
+            <p className="text-xs text-gray-500 mt-1">Segment 2 of 4</p>
+          </CardContent>
+        </Card>
 
-      {/* Training Tabs */}
-      <Tabs defaultValue="keep" className="space-y-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">5-Day Implementation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">{Math.round(implementationProgress)}%</div>
+            <Progress value={implementationProgress} className="mt-2 h-1" />
+            <p className="text-xs text-gray-500 mt-1">Day {completedDays + 1} of 5</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">Credits Available</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold">4.75</div>
+            <p className="text-xs text-gray-500 mt-1">Including 0.25 ethics</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="keep">KEEP Modules</TabsTrigger>
+          <TabsTrigger value="cle-course">CLE Course</TabsTrigger>
+          <TabsTrigger value="implementation">5-Day Implementation</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
-          <TabsTrigger value="schedule">Live Sessions</TabsTrigger>
         </TabsList>
 
-        {/* KEEP Modules Tab */}
-        <TabsContent value="keep" className="space-y-4">
-          {keepTrainingModules.map((module, index) => (
-            <motion.div
-              key={module.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className={`${module.status === 'locked' ? 'opacity-60' : 'hover:shadow-md transition-shadow cursor-pointer'}`}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{module.title}</h3>
-                        {module.status === 'locked' && (
-                          <Lock className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        {module.progress === 100 && (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        )}
-                      </div>
-                      <p className="text-muted-foreground mb-3">{module.description}</p>
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {module.duration}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <FileText className="h-4 w-4" />
-                          {module.modules.length} lessons
-                        </span>
-                      </div>
-
-                      {module.status === 'available' && (
-                        <div className="space-y-2">
-                          <Progress value={module.progress} className="h-2" />
-                          <div className="flex flex-wrap gap-2">
-                            {module.modules.map((lesson, idx) => (
-                              <Badge 
-                                key={idx} 
-                                variant={module.progress > (idx / module.modules.length) * 100 ? 'default' : 'outline'}
-                                className="text-xs"
-                              >
-                                {lesson}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {module.status === 'locked' && (
-                        <Alert>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>{module.requirement}</AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-
-                    <div className="ml-4">
-                      {module.status === 'available' && (
-                        <Button
-                          onClick={() => setSelectedModule(module.id)}
-                          variant={module.progress > 0 ? 'default' : 'outline'}
-                        >
-                          {module.progress > 0 ? 'Continue' : 'Start'}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </TabsContent>
-
-        {/* Resources Tab */}
-        <TabsContent value="resources">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {quickStartResources.map((resource, index) => (
-              <motion.div
-                key={resource.title}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-4">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <resource.icon className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{resource.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          {resource.description}
-                        </p>
-                        <Button variant="outline" size="sm">
-                          {resource.action}
-                          <Download className="ml-2 h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Additional Learning Resources</CardTitle>
-              <CardDescription>
-                Deepen your understanding of Bitcoin estate planning
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">Security Best Practices Guide</p>
-                      <p className="text-sm text-muted-foreground">Essential security protocols for client assets</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">Case Studies Library</p>
-                      <p className="text-sm text-muted-foreground">Real-world examples and solutions</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">Template Customization Guide</p>
-                      <p className="text-sm text-muted-foreground">How to adapt templates for your jurisdiction</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Live Sessions Tab */}
-        <TabsContent value="schedule">
+        {/* CLE Course Tab */}
+        <TabsContent value="cle-course" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Live Sessions</CardTitle>
-              <CardDescription>
-                Join expert-led training sessions and Q&A
-              </CardDescription>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <CardTitle>{primaryCLECourse.title}</CardTitle>
+                  <CardDescription>{primaryCLECourse.description}</CardDescription>
+                  <div className="flex items-center gap-4 mt-2">
+                    <Badge variant="secondary">
+                      <Award className="mr-1 h-3 w-3" />
+                      {primaryCLECourse.credits} CLE Credits
+                    </Badge>
+                    <Badge variant="outline">
+                      <Star className="mr-1 h-3 w-3" />
+                      {primaryCLECourse.ethicsCredits} Ethics
+                    </Badge>
+                    <span className="text-sm text-gray-500">
+                      <Clock className="inline mr-1 h-3 w-3" />
+                      {primaryCLECourse.duration}
+                    </span>
+                  </div>
+                </div>
+                <Button>
+                  Continue Course <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold">Weekly Office Hours</h4>
-                      <p className="text-sm text-muted-foreground">Open Q&A with KEEP experts</p>
+                {primaryCLECourse.segments.map((segment, index) => (
+                  <div
+                    key={segment.id}
+                    className={cn(
+                      "p-4 rounded-lg border",
+                      segment.status === 'completed' && "bg-green-50 border-green-200",
+                      segment.status === 'in-progress' && "bg-blue-50 border-blue-200"
+                    )}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2">
+                          {segment.status === 'completed' ? (
+                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                          ) : segment.status === 'in-progress' ? (
+                            <PlayCircle className="h-5 w-5 text-blue-600" />
+                          ) : (
+                            <span className="text-sm font-medium text-gray-400">{index + 1}</span>
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="font-medium">{segment.title}</h4>
+                          <p className="text-sm text-gray-500">
+                            {segment.duration}
+                            {segment.hasEthicsCredit && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                Includes Ethics Credit
+                              </Badge>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      {segment.status === 'in-progress' && (
+                        <Button size="sm">Resume</Button>
+                      )}
                     </div>
-                    <Badge>Every Tuesday</Badge>
+                    <div className="ml-11 space-y-1">
+                      {segment.topics.map((topic, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                          {topic}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>2:00 PM EST</span>
-                    <span>•</span>
-                    <span>60 minutes</span>
-                  </div>
-                  <Button className="w-full mt-3" variant="outline">
-                    Add to Calendar
-                  </Button>
-                </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold">Advanced Multisig Workshop</h4>
-                      <p className="text-sm text-muted-foreground">Deep dive into complex custody setups</p>
-                    </div>
-                    <Badge variant="secondary">Jan 25</Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>3:00 PM EST</span>
-                    <span>•</span>
-                    <span>90 minutes</span>
-                  </div>
-                  <Button className="w-full mt-3" variant="outline">
-                    Register
-                  </Button>
-                </div>
+        {/* 5-Day Implementation Tab */}
+        <TabsContent value="implementation" className="space-y-6">
+          <Alert className="border-blue-200 bg-blue-50">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription>
+              <strong>Currently on Day {completedDays + 1}:</strong> Complete each day's modules to unlock the next phase of your KEEP Protocol implementation.
+            </AlertDescription>
+          </Alert>
 
-                <div className="p-4 border rounded-lg">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-semibold">Compliance & Audit Prep</h4>
-                      <p className="text-sm text-muted-foreground">Preparing for state compliance reviews</p>
+          <div className="space-y-4">
+            {implementationModules.map((day) => (
+              <Card
+                key={day.id}
+                className={cn(
+                  day.status === 'locked' && "opacity-60"
+                )}
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {day.status === 'completed' && (
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      )}
+                      {day.status === 'in-progress' && (
+                        <Clock className="h-5 w-5 text-blue-600" />
+                      )}
+                      {day.status === 'locked' && (
+                        <Lock className="h-5 w-5 text-gray-400" />
+                      )}
+                      <div>
+                        <CardTitle className="text-lg">{day.title}</CardTitle>
+                        <CardDescription>{day.description} • {day.duration}</CardDescription>
+                      </div>
                     </div>
-                    <Badge variant="secondary">Feb 1</Badge>
+                    {day.status === 'in-progress' && (
+                      <Button size="sm">
+                        Continue <ArrowRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span>1:00 PM EST</span>
-                    <span>•</span>
-                    <span>2 hours</span>
+                </CardHeader>
+                {(day.status === 'completed' || day.status === 'in-progress') && (
+                  <CardContent>
+                    <Progress value={day.progress} className="mb-3" />
+                    <div className="grid grid-cols-2 gap-2">
+                      {day.modules.map((module, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className={cn(
+                            "h-4 w-4",
+                            day.progress > (i / day.modules.length) * 100
+                              ? "text-green-600"
+                              : "text-gray-300"
+                          )} />
+                          <span className={cn(
+                            day.progress > (i / day.modules.length) * 100
+                              ? "text-gray-900"
+                              : "text-gray-500"
+                          )}>
+                            {module}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Resources Tab */}
+        <TabsContent value="resources" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            {quickResources.map((resource) => {
+              const Icon = resource.icon
+              return (
+                <Card key={resource.title} className={cn(
+                  !resource.available && "opacity-60"
+                )}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <Icon className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-medium">{resource.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{resource.description}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={!resource.available}
+                      >
+                        {resource.action}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+
+          <Card className="border-orange-200 bg-orange-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Video className="h-5 w-5" />
+                Live Office Hours
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Join our weekly office hours for live Q&A with KEEP Protocol experts.
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 bg-white rounded">
+                  <div>
+                    <p className="font-medium text-sm">Every Tuesday</p>
+                    <p className="text-xs text-gray-500">2:00 PM EST • Bitcoin Estate Planning Q&A</p>
                   </div>
-                  <Button className="w-full mt-3" variant="outline">
-                    Register
-                  </Button>
+                  <Button size="sm" variant="outline">Join</Button>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-white rounded">
+                  <div>
+                    <p className="font-medium text-sm">Every Thursday</p>
+                    <p className="text-xs text-gray-500">3:00 PM EST • Technical Implementation</p>
+                  </div>
+                  <Button size="sm" variant="outline">Join</Button>
                 </div>
               </div>
-
-              <Alert className="mt-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  All sessions are recorded and available in the resource library within 24 hours.
-                </AlertDescription>
-              </Alert>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </>
+    </div>
   )
 }
