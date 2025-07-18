@@ -38,6 +38,8 @@ import { VideoPlayer } from '@/components/VideoPlayer'
 import { getTrainingVideosByModule, getAllKeepVideos, type TrainingVideo } from '@/lib/training-videos'
 import { markVideoComplete, getUserVideoProgress, type TrainingProgress } from '@/lib/training-progress'
 import { useToast } from '@/hooks/use-toast'
+import { getUpcomingWorkshops, registerForWorkshop, getUserRegistrations, type Workshop } from '@/lib/workshops'
+import { WorkshopCard } from '@/components/WorkshopCard'
 
 // Process Training Modules
 const processTrainingModules = [
@@ -272,6 +274,9 @@ export default function TrainingPage() {
   const [selectedVideo, setSelectedVideo] = useState<TrainingVideo | null>(null)
   const [loadingVideos, setLoadingVideos] = useState(false)
   const [videoProgress, setVideoProgress] = useState<TrainingProgress[]>([])
+  const [workshops, setWorkshops] = useState<Workshop[]>([])
+  const [userRegistrations, setUserRegistrations] = useState<string[]>([])
+  const [loadingWorkshops, setLoadingWorkshops] = useState(false)
   const router = useRouter()
   const { progress } = useUserProgress()
   const { toast } = useToast()
@@ -285,10 +290,11 @@ export default function TrainingPage() {
   const completedTemplateModules = processTrainingModules[0].modules.filter(m => m.status === 'completed').length
   const templateProgress = (completedTemplateModules / processTrainingModules[0].modules.length) * 100
 
-  // Load videos and progress when component mounts
+  // Load videos, workshops and progress when component mounts
   useEffect(() => {
     loadVideos()
     loadProgress()
+    loadWorkshops()
   }, [])
 
   const loadVideos = async () => {
@@ -300,6 +306,40 @@ export default function TrainingPage() {
       console.error('Error loading videos:', error)
     } finally {
       setLoadingVideos(false)
+    }
+  }
+
+  const loadWorkshops = async () => {
+    setLoadingWorkshops(true)
+    try {
+      const [upcomingWorkshops, userRegs] = await Promise.all([
+        getUpcomingWorkshops(),
+        getUserRegistrations()
+      ])
+      setWorkshops(upcomingWorkshops)
+      setUserRegistrations(userRegs.map(r => r.workshop_id))
+    } catch (error) {
+      console.error('Error loading workshops:', error)
+    } finally {
+      setLoadingWorkshops(false)
+    }
+  }
+
+  const handleWorkshopRegister = async (workshop: Workshop) => {
+    const result = await registerForWorkshop(workshop.id)
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: `You've been registered for ${workshop.title}`,
+      })
+      // Reload workshops to update registration status
+      loadWorkshops()
+    } else {
+      toast({
+        title: "Error",
+        description: result.error || "Failed to register for workshop",
+        variant: "destructive",
+      })
     }
   }
 
@@ -556,37 +596,43 @@ export default function TrainingPage() {
 
         {/* Workshops Tab */}
         <TabsContent value="workshops" className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            {bestPracticesWorkshops.map((workshop) => (
-              <Card key={workshop.id}>
-                <CardHeader>
-                  <CardTitle className="text-lg">{workshop.title}</CardTitle>
-                  <CardDescription>{workshop.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Clock className="h-4 w-4" />
-                      <span>{workshop.duration}</span>
-                      <span>•</span>
-                      <span>{workshop.format}</span>
-                    </div>
-                    <div className="space-y-1">
-                      {workshop.topics.map((topic, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm">
-                          <CheckCircle2 className="h-3 w-3 text-gray-400" />
-                          <span>{topic}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <Button className="w-full" variant={workshop.status === 'available' ? 'default' : 'outline'}>
-                      {workshop.status === 'available' ? 'Start Workshop' : 'Coming Soon'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {loadingWorkshops ? (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading workshops...</p>
+              </div>
+            </div>
+          ) : workshops.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Upcoming Workshops</h3>
+                <p className="text-muted-foreground text-center">
+                  Check back soon for new workshop announcements.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Register for live workshops to earn CLE credits and learn from Bitcoin estate planning experts.
+                </AlertDescription>
+              </Alert>
+              <div className="grid gap-4 md:grid-cols-2">
+                {workshops.map((workshop) => (
+                  <WorkshopCard
+                    key={workshop.id}
+                    workshop={workshop}
+                    onRegister={handleWorkshopRegister}
+                    isRegistered={userRegistrations.includes(workshop.id)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </TabsContent>
 
         {/* Resources Tab */}
