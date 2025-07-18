@@ -254,6 +254,81 @@ Last Updated: January 15, 2025
 
 **Next**: Run fix-auth-and-permissions.sql in Supabase
 
+### Update #5: Fixing Authentication Type Mismatch
+**Time**: January 18, 2025 - 12:00 PM
+**Files Created**:
+- `fix-auth-corrected.sql`
+- `fix-auth-step-by-step.sql`
+
+**Issue Encountered**:
+- Error: "operator does not exist: text = uuid"
+- Root cause: auth0_id column is TEXT type but auth.uid() returns UUID
+- RLS policies comparing auth0_id = auth.uid() were failing
+
+**Solution**:
+- Created SQL scripts with proper type casting
+- Cast auth.uid()::text when inserting/updating auth0_id
+- Cast auth.uid()::text in WHERE clauses comparing with auth0_id
+- Created step-by-step script for safer execution
+
+**Key SQL Changes**:
+```sql
+-- When inserting/updating
+auth.uid()::text as auth0_id
+
+-- When comparing in WHERE clause
+WHERE auth0_id = auth.uid()::text
+```
+
+**Files to run**:
+1. Run `fix-auth-step-by-step.sql` section by section
+2. Each step shows what it's doing and verifies results
+3. Creates user profile with proper type casting
+4. Tests that training_progress inserts work
+
+### Update #6: Identified Root Authentication Issue
+**Time**: January 18, 2025 - 12:15 PM
+**Issue Discovered**:
+- Browser console shows "Auth session missing!"
+- No authenticated user in Supabase
+- App is using localStorage fallback for all operations
+- Mock user ID `559f27f3-d174-47f7-aea4-101d1c6aeb2e` exists but no actual auth user
+
+**Root Cause**:
+- No actual user account exists in Supabase Auth
+- Only mock data in user_profiles table
+- Need to create real auth user first
+
+**Solution Steps**:
+1. Create user in Supabase Dashboard (Authentication > Users > Add User)
+2. Run create-admin-user.sql with the generated user ID
+3. Log in to dashboard with new credentials
+4. Progress tracking will work with real authentication
+
+**Files Created**:
+- `create-admin-user.sql` - SQL to create admin profile after auth user exists
+
+### Update #7: Successfully Created Admin User Profile
+**Time**: January 18, 2025 - 12:30 PM
+**Resolution**:
+- Created admin user profile for fitzhall.fhc@gmail.com
+- User ID: 11d899dc-e4e3-4ff1-a915-934a4fcb56ee
+- Role: admin
+- Firm: KEEP Protocol Admin
+
+**Key Findings**:
+- video_id column in training_progress is UUID type (not text)
+- Admin profile successfully created in user_profiles table
+- User can now log in with Supabase credentials
+
+**Next Steps**:
+1. Log into dashboard with Supabase credentials
+2. Test that progress tracking saves to database (not just localStorage)
+3. Set up proper RLS policies if needed
+4. Continue with Phase 3 (template downloads)
+
+**Status**: Authentication fixed ✅
+
 ---
 
 Last Updated: January 18, 2025
