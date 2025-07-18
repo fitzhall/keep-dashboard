@@ -5,253 +5,120 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
-import { Download, Search, FileText, Shield, Users, BookOpen, Scale, CreditCard } from 'lucide-react'
-import { useState } from 'react'
+import { Download, Search, FileText, Shield, Users, BookOpen, Scale, CreditCard, File } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useUserProgress } from '@/contexts/UserProgressContext'
+import { getTemplates, getTemplateCategories, downloadTemplate, getUserDownloads, type Template } from '@/lib/templates'
+import { toast } from '@/hooks/use-toast'
 
-interface Template {
-  id: number
-  name: string
-  description: string
-  category: string
-  filename: string
-  size: string
-  downloads: number
-  updated: string
-  icon: any
-  premium: boolean
-  tierRestriction?: string
+const categoryIcons: Record<string, any> = {
+  'estate-planning': Scale,
+  'bitcoin-custody': Shield,
+  'legal-forms': FileText,
+  'assessment-tools': Users,
+  'compliance': Shield,
+  'client-education': BookOpen,
+  'technical-guides': FileText,
+  'business-development': CreditCard
 }
 
-const templates: Template[] = [
-  {
-    id: 1,
-    name: 'KEEP Engagement Letter Template',
-    description: 'Professional engagement letter for KEEP Framework implementation',
-    category: 'Legal Documents',
-    filename: 'keep-engagement-letter-template.md',
-    size: '120 KB',
-    downloads: 1247,
-    updated: '2025-07-03',
-    icon: Scale,
-    premium: false
-  },
-  {
-    id: 2,
-    name: 'KEEP Framework License Agreement',
-    description: 'Complete licensing agreement for KEEP Framework usage',
-    category: 'Legal Documents',
-    filename: 'keep-framework-license-agreement.md',
-    size: '460 KB',
-    downloads: 892,
-    updated: '2025-07-03',
-    icon: FileText,
-    premium: false
-  },
-  {
-    id: 3,
-    name: 'KEEP Ethics Checklist Template',
-    description: 'Comprehensive ethics compliance verification for Bitcoin estate planning',
-    category: 'Legal Documents',
-    filename: 'keep-ethics-checklist-template.md',
-    size: '37 KB',
-    downloads: 654,
-    updated: '2025-07-03',
-    icon: Shield,
-    premium: false
-  },
-  {
-    id: 4,
-    name: 'Bitcoin Multisig Design Worksheet',
-    description: 'Technical worksheet for designing multi-signature wallet configurations',
-    category: 'Assessment Tools',
-    filename: 'bitcoin-multisig-design-worksheet.md',
-    size: '439 KB',
-    downloads: 543,
-    updated: '2025-07-03',
-    icon: Users,
-    premium: false
-  },
-  {
-    id: 5,
-    name: 'Client Risk Assessment Template',
-    description: 'Comprehensive risk assessment form for Bitcoin estate planning clients',
-    category: 'Assessment Tools',
-    filename: 'client-risk-assessment-template.md',
-    size: 'TBD KB',
-    downloads: 432,
-    updated: '2025-07-03',
-    icon: Users,
-    premium: false
-  },
-  {
-    id: 6,
-    name: 'Probate Proofing SOP Template',
-    description: 'Standard operating procedures for probate-proofing Bitcoin estates',
-    category: 'Compliance',
-    filename: 'probate-proofing-sop-template.md',
-    size: '38 KB',
-    downloads: 321,
-    updated: '2025-07-03',
-    icon: Shield,
-    premium: false
-  },
-  {
-    id: 7,
-    name: 'Probate Proofing Implementation Guide',
-    description: 'Complete guide for implementing probate-proofing procedures',
-    category: 'Compliance',
-    filename: 'probate-proofing-implementation-guide.md',
-    size: '617 KB',
-    downloads: 234,
-    updated: '2025-07-03',
-    icon: Shield,
-    premium: false
-  },
-  {
-    id: 8,
-    name: 'Quality Control Submission Form',
-    description: 'Form for quality control review and compliance verification',
-    category: 'Compliance',
-    filename: 'quality-control-submission-form.md',
-    size: 'TBD KB',
-    downloads: 189,
-    updated: '2025-07-03',
-    icon: Shield,
-    premium: false
-  },
-  {
-    id: 9,
-    name: 'Bitcoin Beneficiary Instructions Guide',
-    description: 'Step-by-step instructions for beneficiaries to access Bitcoin inheritance',
-    category: 'Client Education',
-    filename: 'bitcoin-beneficiary-instructions-guide.md',
-    size: '557 KB',
-    downloads: 876,
-    updated: '2025-07-03',
-    icon: BookOpen,
-    premium: false
-  },
-  {
-    id: 10,
-    name: 'KEEP Framework Client Guide',
-    description: 'Comprehensive guide explaining the KEEP Framework to clients',
-    category: 'Client Education',
-    filename: 'keep-framework-client-guide.md',
-    size: '588 KB',
-    downloads: 654,
-    updated: '2025-07-03',
-    icon: BookOpen,
-    premium: false
-  },
-  {
-    id: 11,
-    name: 'Bitcoin Trust Governance Playbook',
-    description: 'Complete playbook for Bitcoin trust governance and management',
-    category: 'Technical Guides',
-    filename: 'bitcoin-trust-governance-playbook.md',
-    size: '668 KB',
-    downloads: 421,
-    updated: '2025-07-03',
-    icon: Shield,
-    premium: false
-  },
-  {
-    id: 12,
-    name: 'Enhanced Client Workflows Guide',
-    description: 'Advanced workflows for Bitcoin estate planning client engagement',
-    category: 'Technical Guides',
-    filename: 'enhanced-client-workflows-guide.md',
-    size: '477 KB',
-    downloads: 332,
-    updated: '2025-07-03',
-    icon: Shield,
-    premium: false
-  },
-  {
-    id: 13,
-    name: 'KEEP Framework Executive Summary',
-    description: 'High-level overview of the KEEP Framework methodology',
-    category: 'Technical Guides',
-    filename: 'keep-framework-executive-summary.md',
-    size: '414 KB',
-    downloads: 765,
-    updated: '2025-07-03',
-    icon: FileText,
-    premium: false
-  },
-  {
-    id: 14,
-    name: 'Billable Hours Upside Calculator',
-    description: 'Calculate potential revenue from Bitcoin estate planning services',
-    category: 'Business Development',
-    filename: 'billable-hours-upside-calculator.md',
-    size: '37 KB',
-    downloads: 234,
-    updated: '2025-07-03',
-    icon: CreditCard,
-    premium: true,
-    tierRestriction: 'Premier+ Only'
-  },
-  {
-    id: 15,
-    name: 'Bitcoin Estate Planning Sales Playbook',
-    description: 'Complete sales strategies for Bitcoin estate planning services',
-    category: 'Business Development',
-    filename: 'bitcoin-estate-planning-sales-playbook.md',
-    size: '437 KB',
-    downloads: 189,
-    updated: '2025-07-03',
-    icon: CreditCard,
-    premium: true,
-    tierRestriction: 'Premier+ Only'
-  },
-  {
-    id: 16,
-    name: 'Practice Marketing Templates',
-    description: 'Marketing materials for promoting Bitcoin estate planning services',
-    category: 'Business Development',
-    filename: 'practice-marketing-templates.md',
-    size: 'TBD KB',
-    downloads: 156,
-    updated: '2025-07-03',
-    icon: CreditCard,
-    premium: true,
-    tierRestriction: 'Premier Only'
-  }
-]
-
-const categories = ['All', 'Legal Documents', 'Assessment Tools', 'Compliance', 'Client Education', 'Technical Guides', 'Business Development']
-
 export default function TemplatesPage() {
-  const { progress, dispatch } = useUserProgress()
+  const { progress } = useUserProgress()
+  const [templates, setTemplates] = useState<Template[]>([])
+  const [categories, setCategories] = useState<string[]>(['All'])
+  const [userDownloads, setUserDownloads] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadTemplates()
+    loadUserDownloads()
+  }, [])
+
+  const loadTemplates = async () => {
+    setLoading(true)
+    try {
+      const [templatesData, categoriesData] = await Promise.all([
+        getTemplates(),
+        getTemplateCategories()
+      ])
+      
+      setTemplates(templatesData)
+      setCategories(['All', ...categoriesData.map(c => c.id)])
+    } catch (error) {
+      console.error('Error loading templates:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load templates",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadUserDownloads = async () => {
+    try {
+      const downloads = await getUserDownloads()
+      setUserDownloads(downloads.map(d => d.template_id))
+    } catch (error) {
+      console.error('Error loading user downloads:', error)
+    }
+  }
 
   const filteredTemplates = templates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = template.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (template.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
     const matchesCategory = selectedCategory === 'All' || template.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
-  const handleDownload = (filename: string, templateName: string) => {
-    // Create download link
-    const link = document.createElement('a')
-    link.href = `/templates/${filename}`
-    link.download = filename
-    link.click()
-    
-    // Track the download in progress
-    dispatch({ 
-      type: 'DOWNLOAD_TEMPLATE', 
-      templateId: filename, 
-      templateName 
-    })
+  const handleDownload = async (template: Template) => {
+    try {
+      await downloadTemplate(template)
+      
+      toast({
+        title: "Success",
+        description: `Downloaded ${template.file_name}`,
+      })
+      
+      // Reload downloads to update the UI
+      loadUserDownloads()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download template",
+        variant: "destructive"
+      })
+    }
   }
 
-  const isDownloaded = (filename: string) => {
-    return progress.templatesDownloaded.includes(filename)
+  const isDownloaded = (templateId: string) => {
+    return userDownloads.includes(templateId)
+  }
+
+  const formatCategoryName = (category: string): string => {
+    return category.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ')
+  }
+
+  const formatFileSize = (bytes: number | null): string => {
+    if (!bytes) return 'N/A'
+    const kb = bytes / 1024
+    return kb < 1024 ? `${kb.toFixed(0)} KB` : `${(kb / 1024).toFixed(1)} MB`
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading templates...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -295,7 +162,7 @@ export default function TemplatesPage() {
                     size="sm"
                     onClick={() => setSelectedCategory(category)}
                   >
-                    {category}
+                    {category === 'All' ? 'All' : formatCategoryName(category)}
                   </Button>
                 ))}
               </div>
@@ -306,60 +173,63 @@ export default function TemplatesPage() {
 
       {/* Templates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTemplates.map((template, index) => (
-          <motion.div
-            key={template.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 + index * 0.1 }}
-          >
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <template.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {template.category}
-                        </Badge>
-                        {template.premium && (
-                          <Badge variant="default" className="text-xs">
-                            {template.tierRestriction || 'Premium'}
+        {filteredTemplates.map((template, index) => {
+          const IconComponent = categoryIcons[template.category] || File
+          const downloaded = isDownloaded(template.id)
+          
+          return (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+            >
+              <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <IconComponent className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{template.title}</CardTitle>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {formatCategoryName(template.category)}
                           </Badge>
-                        )}
+                          {template.file_type && (
+                            <Badge variant="outline" className="text-xs">
+                              {template.file_type.toUpperCase()}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {template.description}
-                </p>
-                
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                  <span>{template.size}</span>
-                  <span>{template.downloads} downloads</span>
-                  <span>Updated {template.updated}</span>
-                </div>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <p className="text-sm text-muted-foreground mb-4 flex-1">
+                    {template.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                    <span>{formatFileSize(template.file_size)}</span>
+                    <span>Updated {new Date(template.updated_at).toLocaleDateString()}</span>
+                  </div>
 
-                <Button 
-                  className="w-full"
-                  onClick={() => handleDownload(template.filename, template.name)}
-                  disabled={template.premium}
-                  variant={isDownloaded(template.filename) ? "secondary" : "default"}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  {template.premium ? (template.tierRestriction || 'Premium Only') : isDownloaded(template.filename) ? 'Downloaded' : 'Download'}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+                  <Button 
+                    className="w-full"
+                    onClick={() => handleDownload(template)}
+                    variant={downloaded ? "secondary" : "default"}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    {downloaded ? 'Downloaded' : 'Download'}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )
+        })}
       </div>
 
       {filteredTemplates.length === 0 && (
@@ -376,27 +246,29 @@ export default function TemplatesPage() {
         </motion.div>
       )}
 
-      {/* Premium Notice */}
-      <motion.div 
-        className="mt-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <Card className="border-primary">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">Unlock Premium Templates</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Get access to advanced templates and exclusive content with a Premium license.
-                </p>
+      {/* Download History Notice */}
+      {userDownloads.length > 0 && (
+        <motion.div 
+          className="mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">Your Downloads</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    You have downloaded {userDownloads.length} template{userDownloads.length !== 1 ? 's' : ''}.
+                    Templates marked as "Downloaded" are tracked for your reference.
+                  </p>
+                </div>
               </div>
-              <Button>Upgrade to Premium</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
     </>
   )
 }
