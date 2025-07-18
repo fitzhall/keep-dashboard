@@ -65,7 +65,7 @@ export async function getTemplateCategories(): Promise<TemplateCategory[]> {
     if (error) throw error
 
     // Count templates per category
-    const categoryCounts = (data || []).reduce((acc, item) => {
+    const categoryCounts = (data || []).reduce((acc: Record<string, number>, item) => {
       acc[item.category] = (acc[item.category] || 0) + 1
       return acc
     }, {} as Record<string, number>)
@@ -176,7 +176,7 @@ export async function downloadTemplate(template: Template): Promise<boolean> {
 export async function getDownloadStats() {
   try {
     const { data, error } = await supabase
-      .from('template_download_stats')
+      .from('template_stats')
       .select('*')
       .order('total_downloads', { ascending: false })
 
