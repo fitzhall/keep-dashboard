@@ -225,4 +225,35 @@ Last Updated: January 15, 2025
 
 ---
 
+## Authentication & Permissions Fix
+
+### Update #4: Fixing User Profiles and RLS Policies
+**Time**: January 18, 2025 - 11:45 AM
+**Files Created**:
+- `fix-auth-and-permissions.sql`
+- `lib/auth-helpers.ts`
+
+**What was done**:
+- Created comprehensive SQL script to set up user profiles
+- Fixed RLS policies to work with auth.uid() directly
+- Removed foreign key dependency on user_profiles
+- Created helper functions for user profile management
+- Simplified permission model
+
+**Key Changes**:
+1. User profiles auto-created on first login
+2. RLS policies accept both user_profiles.id and auth.uid()
+3. Training progress uses auth.uid() directly
+4. Admin role properly assigned in user_profiles
+
+**SQL Script Features**:
+- Creates/updates user profile with admin role
+- Fixes RLS policies for both tables
+- Removes orphaned records
+- Provides test queries to verify setup
+
+**Next**: Run fix-auth-and-permissions.sql in Supabase
+
+---
+
 Last Updated: January 18, 2025

@@ -44,7 +44,7 @@ export async function markVideoComplete(videoId: string, moduleId?: string): Pro
     }
     console.log('Current user:', user.id)
 
-    // Use the auth user ID directly without checking user_profiles
+    // Use the auth user ID directly
     const userId = user.id
     console.log('Using userId:', userId)
 
