@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,11 +22,20 @@ import {
   Star,
   ArrowRight,
   Calendar,
-  Video
+  Video,
+  X
 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { useRouter } from 'next/navigation'
 import { useUserProgress } from '@/contexts/UserProgressContext'
 import { cn } from '@/lib/utils'
+import { VideoPlayer } from '@/components/VideoPlayer'
+import { getTrainingVideosByModule, getAllKeepVideos, type TrainingVideo } from '@/lib/training-videos'
 
 // Process Training Modules
 const processTrainingModules = [
@@ -257,6 +266,9 @@ const trainingResources = [
 
 export default function TrainingPage() {
   const [activeTab, setActiveTab] = useState('templates')
+  const [videos, setVideos] = useState<TrainingVideo[]>([])
+  const [selectedVideo, setSelectedVideo] = useState<TrainingVideo | null>(null)
+  const [loadingVideos, setLoadingVideos] = useState(false)
   const router = useRouter()
   const { progress } = useUserProgress()
 
@@ -268,6 +280,34 @@ export default function TrainingPage() {
   // Calculate progress
   const completedTemplateModules = processTrainingModules[0].modules.filter(m => m.status === 'completed').length
   const templateProgress = (completedTemplateModules / processTrainingModules[0].modules.length) * 100
+
+  // Load videos when component mounts
+  useEffect(() => {
+    loadVideos()
+  }, [])
+
+  const loadVideos = async () => {
+    setLoadingVideos(true)
+    try {
+      const keepVideos = await getAllKeepVideos()
+      setVideos(keepVideos)
+    } catch (error) {
+      console.error('Error loading videos:', error)
+    } finally {
+      setLoadingVideos(false)
+    }
+  }
+
+  // Group videos by module
+  const videosByModule = videos.reduce((acc, video) => {
+    if (video.module_id) {
+      if (!acc[video.module_id]) {
+        acc[video.module_id] = []
+      }
+      acc[video.module_id].push(video)
+    }
+    return acc
+  }, {} as Record<string, TrainingVideo[]>)
 
   return (
     <div className="space-y-6">
@@ -377,6 +417,9 @@ export default function TrainingPage() {
                           <h4 className="font-medium">{module.name}</h4>
                           <p className="text-sm text-gray-500">
                             {module.topics.length} templates to master
+                            {videosByModule[processTrainingModules[0].modules[index].name] && 
+                              ` • ${videosByModule[processTrainingModules[0].modules[index].name].length} videos`
+                            }
                           </p>
                         </div>
                       </div>
@@ -585,6 +628,44 @@ export default function TrainingPage() {
             </CardContent>
           </Card>
 
+          {/* Training Videos Section */}
+          {videos.length > 0 && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Video className="h-5 w-5" />
+                  Training Videos
+                </CardTitle>
+                <CardDescription>Watch video tutorials for each module</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {videos.slice(0, 5).map((video) => (
+                    <Button
+                      key={video.id}
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => setSelectedVideo(video)}
+                    >
+                      <PlayCircle className="h-4 w-4 mr-2" />
+                      <span className="flex-1 text-left truncate">{video.title}</span>
+                      {video.duration_minutes && (
+                        <span className="text-xs text-gray-500 ml-2">
+                          {video.duration_minutes} min
+                        </span>
+                      )}
+                    </Button>
+                  ))}
+                  {videos.length > 5 && (
+                    <p className="text-sm text-center text-gray-500 mt-2">
+                      And {videos.length - 5} more videos available
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle>Team Training Program</CardTitle>
@@ -628,6 +709,36 @@ export default function TrainingPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Video Player Dialog */}
+      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>{selectedVideo?.title}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedVideo(null)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedVideo && (
+            <VideoPlayer
+              title={selectedVideo.title}
+              videoUrl={selectedVideo.video_url}
+              duration={selectedVideo.duration_minutes || undefined}
+              description={selectedVideo.description || undefined}
+              onComplete={() => {
+                // TODO: Mark video as completed
+                console.log('Video completed:', selectedVideo.id)
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

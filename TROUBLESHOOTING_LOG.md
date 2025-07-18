@@ -118,3 +118,92 @@
 ---
 
 Last Updated: January 15, 2025
+
+---
+
+# Training Section Implementation Log
+
+## Implementation Plan Overview
+**Start Date**: January 18, 2025
+**Goal**: Make the training section fully functional with video playback, progress tracking, and template downloads
+
+### Phase 1: Core Video Display (Day 1)
+- Create VideoPlayer component
+- Integrate videos into training pages
+- Display videos by module
+
+### Phase 2: Progress Tracking (Day 2)
+- Create progress tracking database schema
+- Implement "Mark Complete" functionality
+- Update module progress calculations
+
+### Phase 3: Template Downloads (Day 3)
+- Implement template file management
+- Add download tracking
+- Pre-fill templates with firm info
+
+### Phase 4: Workshop Scheduling (Day 4)
+- Display workshop schedule
+- Integrate with calendar booking
+
+---
+
+## Phase 1 Implementation Log
+
+### Update #1: Created VideoPlayer Component
+**Time**: January 18, 2025 - 10:00 AM
+**Files Created**: `components/VideoPlayer.tsx`
+**What was done**:
+- Created reusable VideoPlayer component supporting YouTube, Vimeo, and Loom
+- Reused URL parsing logic from admin training page
+- Added responsive iframe sizing
+- Included loading and error states
+- Added video metadata display (title, duration, platform badge)
+
+**Code highlights**:
+- Automatic platform detection from URL
+- Embed URL generation for each platform
+- Responsive 16:9 aspect ratio
+- Clean loading states with skeleton UI
+
+**Next**: Integrate VideoPlayer into training pages
+
+### Update #2: Integrated Videos into Training Page
+**Time**: January 18, 2025 - 10:15 AM
+**Files Modified**: 
+- `app/training/page.tsx`
+- Created `lib/training-videos.ts`
+
+**What was done**:
+- Created data fetching functions for training videos
+- Added video state management to training page
+- Integrated VideoPlayer in a modal dialog
+- Added video list to Resources tab
+- Videos now load from Supabase and display properly
+
+**Key features added**:
+- Auto-loads all KEEP training videos on page mount
+- Click any video to open in modal player
+- Shows video count and duration
+- Responsive video player with platform badges
+- Ready for progress tracking in Phase 2
+
+**Result**: Phase 1 Complete ✅
+- Videos can be uploaded via admin panel
+- Videos display in training section
+- Users can watch videos in a clean modal interface
+
+---
+
+## Phase 2 Implementation Log
+
+### Update #3: Creating Progress Tracking Schema
+**Time**: January 18, 2025 - 10:30 AM
+**Next steps**:
+- Create training_progress table
+- Add progress tracking to VideoPlayer
+- Update module progress calculations
+
+---
+
+Last Updated: January 18, 2025
