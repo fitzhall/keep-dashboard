@@ -248,10 +248,6 @@ export default function AdminPage() {
                 <Shield className="h-6 w-6" />
                 <span>Security Settings</span>
               </Button>
-              <Button variant="outline" className="h-20 flex-col gap-2">
-                <FileText className="h-6 w-6" />
-                <span>Audit Logs</span>
-              </Button>
               <Button 
                 variant="outline" 
                 className="h-20 flex-col gap-2"
@@ -259,6 +255,14 @@ export default function AdminPage() {
               >
                 <BookOpen className="h-6 w-6" />
                 <span>Training Videos</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-20 flex-col gap-2"
+                onClick={() => router.push('/admin/workshops')}
+              >
+                <Calendar className="h-6 w-6" />
+                <span>Workshops</span>
               </Button>
             </div>
           </CardContent>
