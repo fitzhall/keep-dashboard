@@ -1,8 +1,17 @@
-import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  // Temporarily disable all middleware to fix redirect loop
+export async function middleware(req: NextRequest) {
+  // For now, let's just handle basic redirects without auth check
+  // to avoid breaking the app
+  
+  const { pathname } = req.nextUrl
+
+  // Redirect root to dashboard
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
   return NextResponse.next()
 }
 
@@ -13,7 +22,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     * - api (API routes)
+     * - public files
      */
-    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)'
+    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|api).*)'
   ]
 }
