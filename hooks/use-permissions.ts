@@ -26,9 +26,7 @@ export function usePermissions() {
               email: profile.email || authUser.email || '',
               role: profile.role as UserRole || 'attorney',
               firm: profile.firm || '',
-              licenseType: 'premier', // Default for now
-              complianceScore: 95,
-              isActive: true
+              avatar: profile.avatar
             })
           }
         }
