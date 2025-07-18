@@ -183,7 +183,6 @@ export default function AdminTrainingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!userProfile?.id) return
 
     try {
       const videoType = detectVideoType(formData.video_url)
@@ -199,7 +198,7 @@ export default function AdminTrainingPage() {
         course_id: formData.category === 'cle' ? parseInt(formData.course_id) : null,
         order_index: parseInt(formData.order_index) || 0,
         is_active: true,
-        created_by: userProfile.id
+        created_by: userProfile?.id || null
       }
 
       if (editingVideo) {
@@ -230,11 +229,11 @@ export default function AdminTrainingPage() {
       setShowDialog(false)
       resetForm()
       loadVideos()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving video:', error)
       toast({
         title: 'Error saving video',
-        description: 'Please try again',
+        description: error.message || 'Please check if the training_videos table exists in your database',
         variant: 'destructive'
       })
     }
