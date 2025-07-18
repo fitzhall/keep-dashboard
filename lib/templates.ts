@@ -65,7 +65,7 @@ export async function getTemplateCategories(): Promise<TemplateCategory[]> {
     if (error) throw error
 
     // Count templates per category
-    const categoryCounts = (data || []).reduce((acc: Record<string, number>, item) => {
+    const categoryCounts = (data || []).reduce((acc: Record<string, number>, item: { category: string }) => {
       acc[item.category] = (acc[item.category] || 0) + 1
       return acc
     }, {} as Record<string, number>)
