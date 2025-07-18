@@ -36,6 +36,8 @@ import { useUserProgress } from '@/contexts/UserProgressContext'
 import { cn } from '@/lib/utils'
 import { VideoPlayer } from '@/components/VideoPlayer'
 import { getTrainingVideosByModule, getAllKeepVideos, type TrainingVideo } from '@/lib/training-videos'
+import { markVideoComplete, getUserVideoProgress, type TrainingProgress } from '@/lib/training-progress'
+import { useToast } from '@/hooks/use-toast'
 
 // Process Training Modules
 const processTrainingModules = [
@@ -269,8 +271,10 @@ export default function TrainingPage() {
   const [videos, setVideos] = useState<TrainingVideo[]>([])
   const [selectedVideo, setSelectedVideo] = useState<TrainingVideo | null>(null)
   const [loadingVideos, setLoadingVideos] = useState(false)
+  const [videoProgress, setVideoProgress] = useState<TrainingProgress[]>([])
   const router = useRouter()
   const { progress } = useUserProgress()
+  const { toast } = useToast()
 
   const handleStartTraining = (moduleId: string) => {
     // In a real app, this would navigate to the actual training content
@@ -281,9 +285,10 @@ export default function TrainingPage() {
   const completedTemplateModules = processTrainingModules[0].modules.filter(m => m.status === 'completed').length
   const templateProgress = (completedTemplateModules / processTrainingModules[0].modules.length) * 100
 
-  // Load videos when component mounts
+  // Load videos and progress when component mounts
   useEffect(() => {
     loadVideos()
+    loadProgress()
   }, [])
 
   const loadVideos = async () => {
@@ -296,6 +301,36 @@ export default function TrainingPage() {
     } finally {
       setLoadingVideos(false)
     }
+  }
+
+  const loadProgress = async () => {
+    try {
+      const progress = await getUserVideoProgress()
+      setVideoProgress(progress)
+    } catch (error) {
+      console.error('Error loading progress:', error)
+    }
+  }
+
+  const handleVideoComplete = async (video: TrainingVideo) => {
+    const success = await markVideoComplete(video.id, video.module_id || undefined)
+    if (success) {
+      toast({
+        title: 'Video completed!',
+        description: 'Your progress has been saved.'
+      })
+      loadProgress() // Reload progress
+    } else {
+      toast({
+        title: 'Error saving progress',
+        description: 'Please try again later.',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const isVideoCompleted = (videoId: string) => {
+    return videoProgress.some(p => p.video_id === videoId && p.completed)
   }
 
   // Group videos by module
@@ -640,22 +675,32 @@ export default function TrainingPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {videos.slice(0, 5).map((video) => (
-                    <Button
-                      key={video.id}
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => setSelectedVideo(video)}
-                    >
-                      <PlayCircle className="h-4 w-4 mr-2" />
-                      <span className="flex-1 text-left truncate">{video.title}</span>
-                      {video.duration_minutes && (
-                        <span className="text-xs text-gray-500 ml-2">
-                          {video.duration_minutes} min
-                        </span>
-                      )}
-                    </Button>
-                  ))}
+                  {videos.slice(0, 5).map((video) => {
+                    const completed = isVideoCompleted(video.id)
+                    return (
+                      <Button
+                        key={video.id}
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start",
+                          completed && "border-green-500 bg-green-50 hover:bg-green-100"
+                        )}
+                        onClick={() => setSelectedVideo(video)}
+                      >
+                        {completed ? (
+                          <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
+                        ) : (
+                          <PlayCircle className="h-4 w-4 mr-2" />
+                        )}
+                        <span className="flex-1 text-left truncate">{video.title}</span>
+                        {video.duration_minutes && (
+                          <span className="text-xs text-gray-500 ml-2">
+                            {video.duration_minutes} min
+                          </span>
+                        )}
+                      </Button>
+                    )
+                  })}
                   {videos.length > 5 && (
                     <p className="text-sm text-center text-gray-500 mt-2">
                       And {videos.length - 5} more videos available
@@ -729,12 +774,12 @@ export default function TrainingPage() {
             <VideoPlayer
               title={selectedVideo.title}
               videoUrl={selectedVideo.video_url}
+              videoId={selectedVideo.id}
+              moduleId={selectedVideo.module_id || undefined}
               duration={selectedVideo.duration_minutes || undefined}
               description={selectedVideo.description || undefined}
-              onComplete={() => {
-                // TODO: Mark video as completed
-                console.log('Video completed:', selectedVideo.id)
-              }}
+              isCompleted={isVideoCompleted(selectedVideo.id)}
+              onComplete={() => handleVideoComplete(selectedVideo)}
             />
           )}
         </DialogContent>

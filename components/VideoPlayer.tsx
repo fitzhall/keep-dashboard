@@ -3,27 +3,35 @@
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Youtube, Video, AlertCircle, Clock } from 'lucide-react'
+import { Youtube, Video, AlertCircle, Clock, CheckCircle2 } from 'lucide-react'
 
 interface VideoPlayerProps {
   title: string
   videoUrl: string
+  videoId?: string
+  moduleId?: string
   duration?: number
   description?: string
   onComplete?: () => void
+  isCompleted?: boolean
 }
 
 export function VideoPlayer({ 
   title, 
-  videoUrl, 
+  videoUrl,
+  videoId,
+  moduleId,
   duration, 
   description,
-  onComplete 
+  onComplete,
+  isCompleted = false
 }: VideoPlayerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+  const [markedComplete, setMarkedComplete] = useState(isCompleted)
 
   // Detect video platform
   const detectVideoType = (url: string): 'youtube' | 'vimeo' | 'loom' | 'other' => {
@@ -108,7 +116,7 @@ export function VideoPlayer({
         {/* Video Header */}
         <div className="p-4 border-b">
           <div className="flex items-start justify-between">
-            <div className="space-y-1">
+            <div className="space-y-1 flex-1">
               <h3 className="font-semibold">{title}</h3>
               {description && (
                 <p className="text-sm text-muted-foreground">{description}</p>
@@ -123,6 +131,27 @@ export function VideoPlayer({
                 )}
               </div>
             </div>
+            {videoId && (
+              <Button
+                variant={markedComplete ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setMarkedComplete(true)
+                  onComplete?.()
+                }}
+                disabled={markedComplete}
+                className="ml-4"
+              >
+                {markedComplete ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Completed
+                  </>
+                ) : (
+                  <>Mark Complete</>
+                )}
+              </Button>
+            )}
           </div>
         </div>
 
