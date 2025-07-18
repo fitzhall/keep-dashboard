@@ -55,6 +55,16 @@ import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import type { Workshop, WorkshopRegistration } from '@/lib/workshops'
 
+// Extended type for admin view with joined data
+interface WorkshopRegistrationWithUser extends WorkshopRegistration {
+  user?: {
+    id: string
+    name: string
+    email: string
+  }
+  workshop?: Workshop
+}
+
 interface WorkshopFormData {
   title: string
   description: string
@@ -76,7 +86,7 @@ interface WorkshopFormData {
 
 export default function AdminWorkshopsPage() {
   const [workshops, setWorkshops] = useState<Workshop[]>([])
-  const [registrations, setRegistrations] = useState<WorkshopRegistration[]>([])
+  const [registrations, setRegistrations] = useState<WorkshopRegistrationWithUser[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
