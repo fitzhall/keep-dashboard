@@ -125,10 +125,10 @@ export async function getUserVideoProgress(): Promise<TrainingProgress[]> {
     }
 
     // Merge database and local progress (database takes precedence)
-    const dbVideoIds = new Set((data || []).map(p => p.video_id))
+    const dbVideoIds = new Set((data || []).map((p: TrainingProgress) => p.video_id))
     const mergedProgress = [
       ...(data || []),
-      ...localProgressArray.filter(p => !dbVideoIds.has(p.video_id))
+      ...localProgressArray.filter((p: TrainingProgress) => !dbVideoIds.has(p.video_id))
     ]
 
     return mergedProgress
