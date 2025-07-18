@@ -10,10 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LogOut, Settings, User } from 'lucide-react'
+import { LogOut, Settings, User, Shield } from 'lucide-react'
 import { NotificationDropdown } from './NotificationDropdown'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
+import { usePermissions } from '@/hooks/use-permissions'
+import Link from 'next/link'
 
 interface HeaderProps {
   user?: {
@@ -25,6 +27,7 @@ interface HeaderProps {
 
 export function Header({ user }: HeaderProps) {
   const router = useRouter()
+  const { isAdmin } = usePermissions()
 
   const handleLogout = async () => {
     try {
@@ -43,6 +46,15 @@ export function Header({ user }: HeaderProps) {
           <h1 className="text-xl font-bold">KEEP Protocol</h1>
           
           <div className="flex items-center gap-4">
+            {isAdmin && (
+              <Link href="/admin">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Shield className="h-4 w-4" />
+                  Admin
+                </Button>
+              </Link>
+            )}
+            
             <NotificationDropdown />
             
             <DropdownMenu>
@@ -64,6 +76,12 @@ export function Header({ user }: HeaderProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => router.push('/admin')}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin Panel</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => router.push('/profile')}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
