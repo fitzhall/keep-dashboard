@@ -74,7 +74,7 @@ export async function getTemplateCategories(): Promise<TemplateCategory[]> {
     const categories: TemplateCategory[] = Object.entries(categoryCounts).map(([category, count]) => ({
       id: category,
       name: formatCategoryName(category),
-      count
+      count: count as number
     }))
 
     return categories
